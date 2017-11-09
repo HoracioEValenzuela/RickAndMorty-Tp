@@ -1,5 +1,3 @@
-///////////////////////////////////////////////// Personajes /////////////////////////////////////////////////
-
 class Personaje{//Clase creada por comodidad para juntar el comportamiento en comun de Rick y de Morty.
 	var mochila = #{}
 	
@@ -13,9 +11,18 @@ class Personaje{//Clase creada por comodidad para juntar el comportamiento en co
 			mochila.add(unMaterial)	
 		}
 		
-		method sacarDeLaMochila(unosObjetos){
-			mochila.removeAll(unosObjetos)
+		method mochila() = mochila
+		
+			//Dado un companiero, agrega la mochila de Morty al inventario/mochila de dicho companiero. 
+		method darObjetos(unCompaniero){
+			unCompaniero.recibirObjetos(mochila) //El companiero de Morty debe entender este mensaje
+			self.descartarObjetos()
 		}
+			//Vacia la mochila de Morty.
+		method descartarObjetos(){
+			mochila = #{}
+		}
+		
 }
 
 object morty inherits Personaje{
@@ -54,19 +61,11 @@ object morty inherits Personaje{
 			}
 			//Dudas sobre esta parte. De quien es la responsabilidad?
 			self.meterEnLaMochila(unMaterial)
-			unMaterial.loQueVariaLaEnergiaCuandoLoRecoge(self) //No estoy seguro de esta parte
+			unMaterial.provocarEfecto(self) //No estoy seguro de esta parte
 		}
 		
-			//Dado un companiero, agrega la mochila de Morty al inventario/mochila de dicho companiero. 
-		method darObjetos(unCompaniero){
-			unCompaniero.recibirObjetos(mochila) //El companiero de Morty debe entender este mensaje
-			self.descartarObjetos()
-		}
 		
-			//Vacia la mochila de Morty.
-		method descartarObjetos(){
-			mochila = #{}
-		}
+		
 }
 
 
@@ -82,10 +81,9 @@ class Material{
 			method cuantaEnergiaSeNecesitaParaRecolectarlo() = self.cantMetal()
 			
 				//Dada un "alguien", disminuye la energia del mismo, en cuanto a la energia que se necesita para recoger al material.
-			method loQueVariaLaEnergiaCuandoLoRecoge(alguien){
-				if(self.esRadioactivo()){
-					alguien.disminuirEnergia(self.cuantaEnergiaSeNecesitaParaRecolectarlo())//Esta bien esta responsabilidad??
-				}
+			method provocarEfecto(alguien){
+				
+					alguien.disminuirEnergia(self.cuantaEnergiaSeNecesitaParaRecolectarlo())
 			}
 			
 			method generaElectricidad() = self.electricidadGenerada() > 0 //Esto esta bien? 
@@ -130,7 +128,7 @@ class Fleeb inherits Material{
 	var edad //En principio, hasta los 15, el Fleeb no es radiactivo
 	const materialesConsumidos
 				
-				constructor(unaEdad, unosMateriales){
+			constructor(unaEdad, unosMateriales){
 					edad = unaEdad
 					materialesConsumidos = unosMateriales	
 				}	
@@ -163,20 +161,19 @@ class Fleeb inherits Material{
 				//Retorna el material consumido por el Fleeb que menos conductividad posee. 
 			method elMaterialConsumidoQueMenosConduce() = materialesConsumidos.min { material => material.nivelDeConductividad() }
 				
-				//Retorna "True" si el Fleeb es radioactivo. Caso contrario, retorna "False". Se considera que un Fleeb es radioactivo si su edad es mayor a 15 a�os.
+				//Retorna "True" si el Fleeb es radioactivo. Caso contrario, retorna "False". Se considera que un Fleeb es radioactivo si su edad es mayor a 15 años.
 			override method esRadioactivo() = self.edad() > 15 //Tambien se podria escribir la variable y borrar el metodo.
 			
 				//Retorna la cantidad de energia que se necesita para recolectar a un Fleeb. Esta cantidad es el doble de lo que se necesita para recoger a cualquier otro material.
 			override method cuantaEnergiaSeNecesitaParaRecolectarlo() = 2 * super() 
 			
 				//Dado un "alguien", si el Fleeb NO es radioactivo, aumenta la energia del individuo en 10 unidades. Caso contrario, actua como el resto de los materiales. 
-			override method loQueVariaLaEnergiaCuandoLoRecoge(alguien){
-				if(!self.esRadioactivo()){
+			override method provocarEfecto(alguien){
+				if(! self.esRadioactivo()){
 					alguien.incrementarEnergia(10)
 				}				
-				else{
 					super(alguien)//Esto es asi o deberia de no hacer nada?
-				}
+				
 			}
 
 }			
@@ -200,7 +197,7 @@ class MateriaOscura inherits Material{
 ///////////////////////////////////////////////// Personajes /////////////////////////////////////////////////
 
 object rick inherits Personaje{
-	var companiero = morty//Inicialmente decimos que el compa�ero de Rick es Morty, pero esto puede variar en el futuro.	
+	var companiero = morty//Inicialmente decimos que el compañero de Rick es Morty, pero esto puede variar en el futuro.	
 	var experimentos = #{construirBateria, construirCircuito, shockElectrico}	
 		
 			//Retorna el companiero de Rick. En principio, este sera Morty, pero puede cambiar en el futuro.
@@ -215,56 +212,81 @@ object rick inherits Personaje{
 		method agregarExperimento(unExperimento){
 			experimentos.add(unExperimento)	
 		} 
+		method experimentosQuePuedeRealizar() = experimentos.filter({exp => self.sePuedeRealizar(exp) })
 		
-			//Dado una condicion (expresada en un bloque), retorna "True" si Rick tiene en su mochila al menos un elemento que cumpla con dicha condicion.
-		method tieneMaterialQueCumpla(unaCondicion) = mochila.any { unaCondicion.apply() }
-
-		method experimentosQuePuedeRealizar() = experimentos.filter { experimento => experimento.cumpleRequerimientos(self) }
-
-		method puedeHacer(unExperimento) = self.experimentosQuePuedeRealizar().contains(unExperimento)
-		
-		method realizar(unExperimento){
-			if(!self.puedeHacer(unExperimento)){
+		method sePuedeRealizar(experimento) = {  experimento.cumpleRequerimientos() }
+				
+			
+		method realizar(experimento){
+			if(! self.sePuedeRealizar(experimento)){
 				self.error("Rick no puede hacer el experimento en este instante.")
 			}
-			//Realizar experimento
+			
+			self.eliminarMaterialesDe(experimento.materialesNecesarios(self) )
+			experimento.producirEfecto(self)
+			
 		}
-				
-		method agregarMaterial(unMaterial){
-			mochila.add(unMaterial)
+		
+		method eliminarMaterialesDe(materiales){//materiales es una lista de materiales
+			mochila.removeAll(materiales)
+		}
+					
+		method agregarMaterial(material){
+			mochila.add(material)
 		}
 }
+///////////////////////////////////////////////// EXPERIMENTOS /////////////////////////////////////////////////
+
+
 
 class Experimento{//Si voy a dejar los metodos abstractos la clase es innecesaria
+	const materialesNecesarios = []
 	
-	method cumpleRequerimientos(alguien) = alguien.tieneMaterialQueCumpla(self.loQuPideElExperimento()) 
 
-	method loQuPideElExperimento()//Abstracto 
 	
-	method loQueProduce(alguien)//Abstracto - basicamente quiero que esto retorne en cada subclase un bloque de codigo que sea la condicion del mensaje anterior.
+	method tieneMaterialesNecesarios(unaMochila)  
+	
+	method materialesNecesarios(mochila) 
+	
 }
 
 object construirBateria inherits Experimento{
 	
-	override method loQuPideElExperimento() = { material => material.cantMetal() > 200 }//Bloque de codigo
+		const condicionDeRadiactivo = { material => material.esRadiactivo() }
+		const condicionDeMetal = { material => material.cantMetal() > 200 }	
+	//override method cumpleRequerimientos(alguien) = super(alguien) && alguien.tieneMaterialQueCumpla(self.otraCondicion()) 	
 
-	override method loQueProduce(alguien) = new Bateria()
-}
+		override method tieneMaterialesNecesarios(unaMochila) = self.materialesRadiactivos(unaMochila) and  self.materialesConMuchoMetal(unaMochila)
+	
+		method materialesRadiactivos(unosMateriales) = unosMateriales.any(condicionDeRadiactivo)	
+		
+		method materialesConMuchoMetal(unosMateriales) = unosMateriales.any(condicionDeMetal)
+		
+		
+		override method materialesNecesarios(mochila) {
+			materialesNecesarios.add(mochila.find(condicionDeRadiactivo))
+			materialesNecesarios.add(mochila.find(condicionDeMetal))
+		}
+	
+}        
 
 object construirCircuito inherits Experimento{
 	
-	override method loQuPideElExperimento() = { material => material.nivelDeConductividad() > 5 }//Bloque de codigo	
+	override method requerimientos() = { material => material.nivelDeConductividad() > 5 }//Bloque de codigo	
 	
 	override method loQueProduce(alguien) = new Circuito()
 }
 
 object shockElectrico inherits Experimento{
 	
-	override method loQuPideElExperimento() = { material => material.generaElectricidad() && material.conduceElectricidad() }		
+	override method loQuePideElExperimento() = { material => material.generaElectricidad() && material.conduceElectricidad() }		
 
-	override method loQueProduce(alguien) = new ShockElectrico(/*generador, conductor */)//Como pasarle el generador y el conductor.Y sino lo hacemos clase?
+	override method loQueProduce(alguien) = new ShockElectrico(/*generador, conductor */)//Como pasarle el generador y el conductor.
 }
 
+
+
+///////////////////////////////////////////////// MATERIALES COMPLEJOS /////////////////////////////////////////////////
 
 class MaterialCompuesto inherits Material{
 	var componentes
@@ -306,7 +328,7 @@ class Circuito inherits MaterialCompuesto{
 	override method generaElectricidad() = false //Ver si es necesario, dado que material no modifica la cantidad de electricidad generada y en esa clase se detemrina que un material genera electricidad si su self.electricidadGenerada() > 0
 
 	override method provocarEfecto(alguien){
-		//No provoca nad
+		//No provoca nada.
 	}
 }
 
