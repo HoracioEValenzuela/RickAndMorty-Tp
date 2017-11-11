@@ -5,14 +5,14 @@ describe "Comportamiento de los Materiales Simples"{
 		//Materiales Simples
 	var latita = new Lata(2)
 	var lata = new Lata(20)
-	var cablecito = new Cable(1, 2)
-	var cable = new Cable(12, 4)
+	var cablecito = new Cable(1, 5)
+	var cable = new Cable(12, 8)
 	var materiaOscurita = new MateriaOscura(cable)
 	
 		
 		//Coleccion de materiales para que los Fleebs coman.
 	var cenaLigera = #{latita, cablecito, materiaOscurita}
-	var cenaPesada = #{lata, cable}		
+	var cenaPesada = #{lata, cable}
 			
 		//Fleeb NO radioactivo.
 	var miniFleeb = new Fleeb(0,cenaLigera)
@@ -26,8 +26,12 @@ describe "Comportamiento de los Materiales Simples"{
 	var fleebsaurioRex = new Fleeb(2000, comidaMuyPesada)
 	
 		fixture{
+			
 			superFleeb.consumir(miniFleeb)
 			superFleeb.consumir(materiaOscura)
+			morty.recolectar(miniFleeb)
+			morty.recolectar(superFleeb)
+			morty.recolectar(materiaOscura)
 		}
 	
 	
@@ -36,26 +40,16 @@ describe "Comportamiento de los Materiales Simples"{
 			test "Cantidad de metal latita"{
 				assert.equals(2, latita.cantMetal())
 			}
-			test "Cantidad de metal lata"{
-				assert.equals(20, lata.cantMetal())
-			}	
-			test "Cantidad de metal cablecito"{
-				assert.equals(0.002, cablecito.cantMetal())
-			}
-			test "Cantidad de metal cable"{
-				assert.equals(0.048, cable.cantMetal())
-			}
+		
 			test "Cantidad de metal materiaOscurita"{
-				assert.equals(0.048, materiaOscurita.cantMetal())
+				assert.equals(0.096, materiaOscurita.cantMetal())
 			}
-			test "Cantidad de metal materiaOscura"{
-				assert.equals(2.05, materiaOscura.cantMetal())
-			}
+
 			test "Cantidad de metal miniFleeb"{
-				assert.equals(2.05, miniFleeb.cantMetal())
+				assert.equals(2.101, miniFleeb.cantMetal())
 			}	
 			test "Cantidad de metal superFleeb"{
-				assert.equals(24.148, superFleeb.cantMetal())
+				assert.equals(24.298, superFleeb.cantMetal())
 			}	
 		
 		
@@ -64,24 +58,14 @@ describe "Comportamiento de los Materiales Simples"{
 			test "Nivel de Conductividad latita"{
 				assert.equals(0.2, latita.nivelDeConductividad())
 			}
-			test "Nivel de Conductividad lata"{
-				assert.equals(2, lata.nivelDeConductividad())
-			}
 			test "Nivel de Conductividad cablecito"{
-				assert.equals(6, cablecito.nivelDeConductividad())
+				assert.equals(15, cablecito.nivelDeConductividad())
 			}
-			test "Nivel de Conductividad cable"{
-				assert.equals(12, cable.nivelDeConductividad())
-			}
-			test "Nivel de Conductividad materiaOscurita"{
-				assert.equals(6, materiaOscurita.nivelDeConductividad())
-			}
-			test "Nivel de Conductividad materiaOscura"{
-				assert.equals(0.1, materiaOscura.nivelDeConductividad())
-			}
+			
 			test "Nivel de Conductividad miniFleeb"{
 				assert.equals(0.2, miniFleeb.nivelDeConductividad())
 			}
+			
 			test "Nivel de Conductividad superFleeb"{
 				assert.equals(0.1, superFleeb.nivelDeConductividad())
 			}
@@ -92,53 +76,35 @@ describe "Comportamiento de los Materiales Simples"{
 			test "Electricidad generada por la latita"{
 				assert.equals(0, latita.electricidadGenerada())
 			}
-			test "Electricidad generada por la lata"{
-				assert.equals(0, lata.electricidadGenerada())
-			}	
-			test "Electricidad generada por el cablecito"{
-				assert.equals(0, cablecito.electricidadGenerada())
-			}
-			test "Electricidad generada por el cable"{
-				assert.equals(0, cable.electricidadGenerada())
-			}
+		
 			test "Electricidad generada por la materiaOscurita"{
 				assert.equals(0, materiaOscurita.electricidadGenerada())
 			}
-			test "Electricidad generada por la materiaOscura"{
-				assert.equals(0, materiaOscura.electricidadGenerada())
-			}
-			test "Electricidad generada por el miniFleeb"{
-				assert.equals(0, miniFleeb.electricidadGenerada())
-			}	
+		
 			test "Electricidad generada por el superFleeb"{
-				assert.equals(0	, superFleeb.electricidadGenerada())
+				assert.equals(0.1, superFleeb.electricidadGenerada())
 			}	
 					
 			
 			//MensajeTesteado: .esRadioactivo():
 		
-			test "Es radioactiva la latita"{
-				assert.notThat(latita.esRadioactivo())
-			}
-			test "Es radioactiva la lata"{
-				assert.notThat(lata.esRadioactivo())
-			}
 			test "Es radioactivo el cablecito"{
 				assert.notThat(cablecito.esRadioactivo())
 			}
-			test "Es radioactivo el cable"{
-				assert.notThat(cable.esRadioactivo())
-			}
-			test "Es radioactiva la materiaOscurita"{
-				assert.notThat(materiaOscurita.esRadioactivo())
-			}
-			test "Es radioactiva la materiaOscura"{
-				assert.notThat(materiaOscura.esRadioactivo())
-			}
+		
 			test "Es radioactivo el miniFleeb"{
 				assert.notThat(miniFleeb.esRadioactivo())
 			}
 			test "Es radioactivo el superFleeb"{
 				assert.that(superFleeb.esRadioactivo())
 			}
+			
+			//// PERSONAJES EN MARCHA ////
+			test "energia de Morty"{
+				assert.equals(55.101,morty.energia())
+			}
+			/*test "Morty no puede recolectar mas"{
+				asd
+			}*/
+			
 }
