@@ -74,17 +74,22 @@ class Fleeb inherits Material{
 					materialesConsumidos.addAll(unosMateriales)
 				}
 				
+				
 					//Retorna el material consumido que mas electricidad produce.
 				method elMaterialConsumidoQueMasElectricidadProduce() = materialesConsumidos.max { material => material.electricidadGenerada() } 
+				
 					
 					//Retorna el material consumido por el Fleeb que menos conductividad posee. 
 				method elMaterialConsumidoQueMenosConduce() = materialesConsumidos.min { material => material.nivelDeConductividad() }
 				
+				
 					//Retorna la cantidad total de metal de todos los materiales consumidos por el Fleeb.
 				override method cantMetal() = materialesConsumidos.sum { material => material.cantMetal() } 
 				
+				
 					//Retorna la electricidad que genera el Fleeb, la cual es igual a la cantidad que produce el material que mas energia produce. El Fleeb debe de haber consumido por lo menos un material.
 				override method electricidadGenerada() = self.elMaterialConsumidoQueMasElectricidadProduce().nivelDeConductividad()
+				
 				
 					//Denota el nivel de conductividad del Fleeb, el cual esta dado por el material consumido que menos conductividad posee.
 				override method nivelDeConductividad() = self.elMaterialConsumidoQueMenosConduce().nivelDeConductividad()
@@ -208,7 +213,7 @@ class Experimento{//Si voy a dejar los metodos abstractos la clase es innecesari
 		
 		method loQueProvoca(alguien){
 			self.sacarleA(alguien)
-			alguien.meterEnLaMochila(self.loQueProduce())//VER ESTO EN EL SHOCK ELECTRICO
+			alguien.meterEnLaMochila(self.loQueProduce())//VER ESTO EN EL SHOCK ELECTRICO // Si llega a este punto no hace falta preguntar si tiene espacio o no en la mochila pues obvio que lo tiene
 		}
 		
 		method hayMaterialesQueCumplan(unaMochila, unaCondicion) = unaMochila.any(unaCondicion)
@@ -219,6 +224,7 @@ class Experimento{//Si voy a dejar los metodos abstractos la clase es innecesari
 
 		method agarrarLoQueNecesita(unMochila)//Abstracto
 }
+
 
 object construirBateria inherits Experimento{
 	const condicionDeRadiactivo = { material => material.esRadiactivo() }
@@ -330,29 +336,13 @@ class Mochila{
 		
 			method tieneLugar() = self.espacioDisponible() > 0
 		
-			method laMedidaDe(materiales) = #{materiales}.size()
+			method laMedidaDe(materiales) = materiales.size()
 	 
 			method espacioDisponible() =  limite - self.cuantosObjetosTiene()  						
 
-			method errorDeEspacio(){ 
-				self.error("La mochila no tiene mas espacio")
-			}
-			
 			override method tieneEspacioParaRecibir(materiales)  = self.laMedidaDe(materiales) <= self.espacioDisponible()
 	
-			override method agregarEstos(unosObjetos){//Puede ser que la lista de objetos
-				if(!self.tieneEspacioParaRecibir(unosObjetos)){
-					self.errorDeEspacio()	
-				}
-				super(unosObjetos)
-			}
-			
-			override method agregar(objeto){
-				if(!self.tieneEspacioParaRecibir(objeto)){
-					self.errorDeEspacio()
-				}
-				super(objeto)
-			}
+
 }
 
 
@@ -386,7 +376,7 @@ class Personaje{//Clase creada por comodidad para juntar el comportamiento en co
 				self.descartarObjetos()
 			}*/
 			method darObjetos(unCompaniero){
-				if(!unCompaniero.puedeRecibir(self.mochila())){
+				if(! unCompaniero.puedeRecibir(self.mochila())){
 					self.error("La mochila no tiene mas espacio suficiente")
 				}
 				else 
