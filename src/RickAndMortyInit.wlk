@@ -1,175 +1,3 @@
-///////////////////////////////////////////////// Personajes /////////////////////////////////////////////////
-
-class Personaje{//Clase creada por comodidad para juntar el comportamiento en comun de Rick y de Morty.
-	var mochila
-	var companiero 
-			
-		constructor(unaMochila, unCompaniero){
-			mochila = unaMochila
-			companiero = unCompaniero
-		}
-					
-				//Dado una coleccion de objetos, los guarda en la mochila. No pedido, agregado por comodidad a la hora de hacer el test.
-			method recibirObjetos(unosMateriales){
-				mochila.agregarEstos(unosMateriales)
-			}	
-			
-			
-				//Dado un material, lo guarda en la mochila. 
-			method meterEnLaMochila(unMaterial){
-				mochila.agregar(unMaterial)	
-			}
-		
-			method mochila() = mochila.objetos()
-		
-				//Dado un companiero, agrega la mochila del persona en la del dicho companiero. 
-			/*method darObjetos(unCompaniero){
-				unCompaniero.recibirObjetos(self.mochila()) //El companiero de Morty debe entender este mensaje*
-				self.descartarObjetos()
-			}*/
-			method darObjetos(unCompaniero){
-				if(! unCompaniero.puedeRecibir(self.mochila())){
-					self.error("La mochila no tiene mas espacio suficiente")
-				}
-				else 
-					unCompaniero.recibirObjetos(self.mochila()) //El companiero de Morty debe entender este mensaje*
-					self.descartarObjetos()
-			}
-			method puedeRecibir(materiales) = mochila.tieneEspacioParaRecibir(materiales)
-			
-				//Dado un material, elimina de dicho material de la mochila del personaje.
-			method sacar(unMaterial){
-				self.mochila().remove(unMaterial)
-			}
-		
-				//Vacia totalmente la mochila del personaje.
-			method descartarObjetos(){
-				mochila.vaciar()
-			}
-						
-				//Dada una lista de materiales, los saca de la moochila del personaje.
-			method sacarEstos(unosMateriales){
-				self.mochila().removeAll(unosMateriales)
-			}
-			
-				//Retorna el companiero del personaje. En principio, este sera Morty, pero puede cambiar en el futuro.
-			method companiero() = companiero
-		
-				//Dado un companiero, asigna el mismo como companiero del personaje. 
-			method cambiarCompaniero(unCompaniero){
-				companiero = unCompaniero
-			}
-			
-}
-
-
-///////////////////////////////////////////////// Rick & Morty /////////////////////////////////////////////////
-
-object morty inherits Personaje(new MochilaConLimite(3), rick){
-	var energia = 100 //Inicialmente, Morty empieza con 100 de energia. Esto puede variar.(*1)
-		
-		
-		// (*1) setter de la energia por si en alguna ocasion se quiere empezar con otro valor
-		method energia(unaEnergia){ 
-					energia = unaEnergia
-		}
-		method energia() = energia
-		
-		method disminuirEnergia(unaCantidad){
-			energia = (energia  - unaCantidad).max(0)
-		}
-		
-		method incrementarEnergia(unaCantidad){
-			energia += unaCantidad 
-		}
-		
-			//Dado un material, retorna "True" en caso de que Morty pueda recolectar dicho material. Caso contrario retorna "False". 
-		method puedeRecolectar(unMaterial) = mochila.tieneLugar() && self.tieneEnergiaParaLevantar(unMaterial)
-
-		
-			//Dado un material, retorna "True" si Morty tiene energia para recolectar dicho material.
-		method tieneEnergiaParaLevantar(unMaterial) = energia >= unMaterial.cuantaEnergiaSeNecesitaParaRecolectarlo()
-			
-			//Dado un material, si Morty puede recogerlo, lo agrega a su mochila, caso contrario, tira un error avisando que no es posible realizar dicha accion. 
-		method recolectar(unMaterial){
-			if(! self.puedeRecolectar(unMaterial)){
-				self.error("Morty no puede recolectar el material en este momento.")
-			}
-			//Dudas sobre esta parte. De quien es la responsabilidad?
-			self.meterEnLaMochila(unMaterial)
-			unMaterial.provocarEfecto(self) //No estoy seguro de esta parte
-		}
-}
-
-object rick inherits Personaje(new Mochila(), morty){
-	//Inicialmente decimos que el companiero de Rick es Morty, pero esto puede variar en el futuro.	
-	var experimentos = #{construirBateria, construirCircuito}/*shockElectrico*/	
-				
-			//Dado un experimento, agrega el mismo a la coleccion de experimentos de Rick. No pedido, pero se agrega para hacer el programa mas escalable, si se agregan experimentos en el futuro.
-		method agregarExperimento(unExperimento){
-			experimentos.add(unExperimento)//No pedido agregado por escalabilidad.	
-		}
-		 
-		method experimentosQuePuedeRealizar() = experimentos.filter({exp => self.sePuedeRealizar(exp) })
-		
-		method sePuedeRealizar(experimento) = experimento.tieneMaterialesNecesarios(self.mochila()) 
-				
-			
-		method realizar(experimento){
-			if(! self.sePuedeRealizar(experimento)){
-				self.error("Rick no puede hacer el experimento en este instante.")
-			}
-			experimento.agarrarLoQueNecesita(self.mochila())
-			experimento.loQueProvoca(self)
-			experimento.loQueProduce().provocarEfecto(self.companiero())//No estoy seguro de esta parte
-		}
-}
-
-
- ///////////////////////////////////////////////// Mochilas /////////////////////////////////////////////////
-
-
-class Mochila{
-	var objetos = #{} //Seria const, pero el hecho de vaciar se me facilita que sea var.
-	
-		method agregarEstos(unosObjetos){//Puede ser que la lista de objetos
-			objetos.addAll(unosObjetos)
-		}
-		
-		method agregar(objeto){
-			objetos.add(objeto)
-		}
-		
-		method vaciar(){
-			objetos = #{}
-		}
-		method tieneEspacioParaRecibir(materiales) = true
-		
-		method cuantosObjetosTiene() = objetos.size()
-		
-		method objetos() = objetos
-			
-	
-}
-
-class MochilaConLimite inherits Mochila{
-	var limite 
-		constructor(unLimite){
-			limite = unLimite
-		}	
-			method tieneLugar() = self.espacioDisponible() > 0
-		
-			method laMedidaDe(materiales) = materiales.size()  
-	 
-			override method tieneEspacioParaRecibir(materiales)  = self.laMedidaDe(materiales) <= self.espacioDisponible()
-	
-			method espacioDisponible() =  limite - self.cuantosObjetosTiene()  
-	
-						
-}
-		
-		 
-
 
 ///////////////////////////////////////////////// Materiales /////////////////////////////////////////////////
  
@@ -194,8 +22,6 @@ class Material{
 		method cantMetal() //Abstracto - Si bien es la super clase Material el metodo es abstracto se espera que lo que devuelve esta expresado en grs. 
 		
 		method nivelDeConductividad() //Abstracto		
-		
-		
 }
 
 class Lata inherits Material{
@@ -248,21 +74,21 @@ class Fleeb inherits Material{
 					materialesConsumidos.addAll(unosMateriales)
 				}
 				
+					//Retorna el material consumido que mas electricidad produce.
+				method elMaterialConsumidoQueMasElectricidadProduce() = materialesConsumidos.max { material => material.electricidadGenerada() } 
+					
+					//Retorna el material consumido por el Fleeb que menos conductividad posee. 
+				method elMaterialConsumidoQueMenosConduce() = materialesConsumidos.min { material => material.nivelDeConductividad() }
+				
 					//Retorna la cantidad total de metal de todos los materiales consumidos por el Fleeb.
 				override method cantMetal() = materialesConsumidos.sum { material => material.cantMetal() } 
 				
 					//Retorna la electricidad que genera el Fleeb, la cual es igual a la cantidad que produce el material que mas energia produce. El Fleeb debe de haber consumido por lo menos un material.
 				override method electricidadGenerada() = self.elMaterialConsumidoQueMasElectricidadProduce().nivelDeConductividad()
 				
-					//Retorna el material consumido que mas electricidad produce.
-				method elMaterialConsumidoQueMasElectricidadProduce() = materialesConsumidos.max { material => material.electricidadGenerada() } 
-				
 					//Denota el nivel de conductividad del Fleeb, el cual esta dado por el material consumido que menos conductividad posee.
 				override method nivelDeConductividad() = self.elMaterialConsumidoQueMenosConduce().nivelDeConductividad()
-				
-					//Retorna el material consumido por el Fleeb que menos conductividad posee. 
-				method elMaterialConsumidoQueMenosConduce() = materialesConsumidos.min { material => material.nivelDeConductividad() }
-					
+									
 				override method esRadiactivo() = self.edad() > 15 
 				
 				override method cuantaEnergiaSeNecesitaParaRecolectarlo() = 2 * super() 
@@ -290,6 +116,8 @@ class MateriaOscura inherits Material{
 				
 				//La electricidad generada de la materia oscura es el doble de la generada por su material base.
 			override method electricidadGenerada() = materialBase.electricidadGenerada() * 2 
+
+			override method esRadiactivo() = materialBase.esRadiactivo()
 }
 
 
@@ -326,7 +154,7 @@ class Circuito inherits MaterialCompuesto{
 	
 	override method nivelDeConductividad() = self.loQueConducenSusComponentes() * 3
 	
-	override method esRadiactivo() = componentes.any { componente => componente.esRadioactivo() }
+	override method esRadiactivo() = componentes.any { componente => componente.esRadiactivo() }
 	
 	override method generaElectricidad() = false //Ver si es necesario, dado que material no modifica la cantidad de electricidad generada y en esa clase se detemrina que un material genera electricidad si su self.electricidadGenerada() > 0
 
@@ -356,19 +184,34 @@ class ShockElectrico{
 
 ///////////////////////////////////////////////// EXPERIMENTOS /////////////////////////////////////////////////
 
+	// -Aclaracion: A partir de aca, en lo que experimentos se refiere, cada vez que hablamos de "unaMochila",
+	//				en realidad se refiere es a una coleccion de materiales. Hablamos de "mochila" a razon de conservar el dominio,
+	//				y de seguir siendo descriptivos con los terminos que veniamos manejando antes.
+	//					(*)  
+
+
 class Experimento{//Si voy a dejar los metodos abstractos la clase es innecesaria
 	const materialesNecesarios = #{}
 	
+			//Retorna la coleccion de materiales que necesita un eperimento para ser realizado.
 		method materialesNecesarios() = materialesNecesarios
 	
+			//Dada una mochila* y una condicion, agrega a la coleccion de materiales necesarios un objeto de la mochila que cumpla dicha condicion.
 		method materialesNecesarios(unaMochila, unaCondicion){
 			materialesNecesarios.add(unaMochila.find(unaCondicion))
 		}		
 		
+			//Dada una persona, le saca a la misma los materiales que necesita el experimento.
+		method sacarleA(alguien){
+			alguien.sacar(self.materialesNecesarios())
+		}
+		
 		method loQueProvoca(alguien){
-			alguien.sacarEstos(self.materialesNecesarios())
+			self.sacarleA(alguien)
 			alguien.meterEnLaMochila(self.loQueProduce())//VER ESTO EN EL SHOCK ELECTRICO
 		}
+		
+		method hayMaterialesQueCumplan(unaMochila, unaCondicion) = unaMochila.any(unaCondicion)
 
 		method tieneMaterialesNecesarios(unaMochila)//Abstracto
 		
@@ -381,46 +224,273 @@ object construirBateria inherits Experimento{
 	const condicionDeRadiactivo = { material => material.esRadiactivo() }
 	const condicionDeMetal = { material => material.cantMetal() > 200 }	
 	
-		override method tieneMaterialesNecesarios(unaMochila) = self.materialesRadiactivos(unaMochila) and  self.materialesConMuchoMetal(unaMochila)
-	
-		method materialesRadiactivos(unosMateriales) = unosMateriales.any(condicionDeRadiactivo)	
 		
-		method materialesConMuchoMetal(unosMateriales) = unosMateriales.any(condicionDeMetal)
+	
+		method hayMaterialesRadiactivos(unaMochila) = self.hayMaterialesQueCumplan(unaMochila, condicionDeRadiactivo)	
+		
+		method hayMaterialesConMuchoMetal(unaMochila) = self.hayMaterialesQueCumplan(unaMochila, condicionDeMetal)
 					
 		override method agarrarLoQueNecesita(unaMochila){
 			self.materialesNecesarios(unaMochila, condicionDeRadiactivo)
 			self.materialesNecesarios(unaMochila, condicionDeMetal)
-		
 		}
-	/* 	method elMaterialRadioactivo() = materialesNecesarios.find(condicionDeRadiactivo)
 		
-		method elMaterialMetalico() = materialesNecesarios.find(condicionDeMetal)*/
+			//Dada una mochila*, retorna "True" si en la misma hay materiales que sean radioactivos y hay materiales que tengan mas de 200 grs. de metal.
+		override method tieneMaterialesNecesarios(unaMochila) = self.hayMaterialesRadiactivos(unaMochila) and  self.hayMaterialesConMuchoMetal(unaMochila)
 		
+			//Retorna una bateria cuyos componentes son los materiales necesarios del experimento.
 		override method loQueProduce() = new Bateria(materialesNecesarios)
 }        
 
 object construirCircuito inherits Experimento{
 	const condicionDeConductividad = { material => material.nivelDeConductividad() > 5 }
 	
+			//Dada una mochila*, retorna el conjunto de materiales de la misma que tenga una conductividad mator a 5 amperes.
+		method losMaterialesConductores(unaMochila) = unaMochila.filter(condicionDeConductividad).asSet()
+		
+			//Dada una lista de materiales, agrega al conjunto de materiales necesarios, dichos materiales.
+		method agregarTodos(unosMateriales){
+			materialesNecesarios.addAll(unosMateriales)
+		}
+		
 		override method agarrarLoQueNecesita(unaMochila){
-			self.materialesNecesarios(unaMochila, condicionDeConductividad)
+			self.agregarTodos(self.losMaterialesConductores(unaMochila))
 		}	
-		override method tieneMaterialesNecesarios(unaMochila)= unaMochila.any(condicionDeConductividad)
-	
+		
+		override method tieneMaterialesNecesarios(unaMochila)= self.hayMaterialesQueCumplan(unaMochila, condicionDeConductividad)
+
+			//Retorna un circuito cuyos componenetes son los materiales necesarios del experimento.
 		override method loQueProduce() = new Circuito(self.materialesNecesarios())
 }
 
-/*
 object shockElectrico inherits Experimento{
-	
 	const condicionDeGenerarElectricidad = { material => material.generaElectricidad() }
-	const condicionDeConducirElectricidad = {material.conduceElectricidad() }		}
+	const condicionDeConducirElectricidad = { material.conduceElectricidad() }		
 	
-	override method loQueProduce(){} 
-	ew ShockElectrico(generador, conductor)//Como pasarle el generador y el conductor.
+		method tieneMaterialQueGenereElectricidad(unaMochila) = self.hayMaterialesQueCumplan(unaMochila, condicionDeGenerarElectricidad)
+	
+		method tieneMaterialQueConduzcaElectricidad(unaMochila) = self.hayMaterialesQueCumplan(unaMochila, condicionDeConducirElectricidad)
+		
+		override method tieneMaterialesNecesarios(unaMochila)= self.tieneMaterialQueGenereElectricidad(unaMochila) and self.tieneMaterialQueConduzcaElectricidad(unaMochila) 
+			
+		override method loQueProduce(){
+			//No produce ningun material como el resto de los experimentos.
+		}
+		
+		override method agarrarLoQueNecesita(unaMochila){
+			self.materialesNecesarios(unaMochila, condicionDeGenerarElectricidad)
+			self.materialesNecesarios(unaMochila, condicionDeConducirElectricidad)
+		} 
+		
+		override method loQueProvoca(alguien){
+			self.sacarleA(alguien)
+			//CONTROLAR ACA!
+		}
 }
- */
- 
 
- 
+ ///////////////////////////////////////////////// Mochilas /////////////////////////////////////////////////
+
+class Mochila{
+	var objetos = #{} //Seria const, pero el hecho de vaciar se me facilita que sea var.
+		
+		method agregar(objeto){
+			objetos.add(objeto)
+		}
+		
+		method agregarEstos(unosObjetos){//Puede ser que la lista de objetos
+			objetos.addAll(unosObjetos)
+		}
+		
+		method sacar(unObjeto){
+			objetos.remove(unObjeto)
+		}
+		
+		method sacarEstos(unosObjetos){
+			objetos.removeAll(unosObjetos)
+		}
+		
+		
+		method vaciar(){
+			objetos = #{}
+		}
+		
+		method tieneEspacioParaRecibir(materiales) = true
+		
+		method cuantosObjetosTiene() = objetos.size()
+		
+		method objetos() = objetos		
+}
+
+ class MochilaConLimite inherits Mochila{
+	var limite 
+		
+		constructor(unLimite){
+			limite = unLimite
+		}	
+		
+			method tieneLugar() = self.espacioDisponible() > 0
+		
+			method laMedidaDe(materiales) = #{materiales}.size()
+	 
+			method espacioDisponible() =  limite - self.cuantosObjetosTiene()  						
+
+			method errorDeEspacio(){ 
+				self.error("La mochila no tiene mas espacio")
+			}
+			
+			override method tieneEspacioParaRecibir(materiales)  = self.laMedidaDe(materiales) <= self.espacioDisponible()
+	
+			override method agregarEstos(unosObjetos){//Puede ser que la lista de objetos
+				if(!self.tieneEspacioParaRecibir(unosObjetos)){
+					self.errorDeEspacio()	
+				}
+				super(unosObjetos)
+			}
+			
+			override method agregar(objeto){
+				if(!self.tieneEspacioParaRecibir(objeto)){
+					self.errorDeEspacio()
+				}
+				super(objeto)
+			}
+}
+
+
+///////////////////////////////////////////////// Personajes /////////////////////////////////////////////////
+
+class Personaje{//Clase creada por comodidad para juntar el comportamiento en comun de Rick y de Morty.
+	var mochila
+	var companiero 
+			
+		constructor(unaMochila, unCompaniero){
+			mochila = unaMochila
+			companiero = unCompaniero
+		}
+					
+				//Dado una coleccion de objetos, los guarda en la mochila. No pedido, agregado por comodidad a la hora de hacer el test.
+			method recibirObjetos(unosMateriales){
+				mochila.agregarEstos(unosMateriales)
+			}	
+			
+			
+				//Dado un material, lo guarda en la mochila. 
+			method meterEnLaMochila(unMaterial){
+				mochila.agregar(unMaterial)	
+			}
+		
+			method mochila() = mochila.objetos()
+		
+				//Dado un companiero, agrega la mochila del persona en la del dicho companiero. 
+			/*method darObjetos(unCompaniero){
+				unCompaniero.recibirObjetos(self.mochila()) //El companiero de Morty debe entender este mensaje*
+				self.descartarObjetos()
+			}*/
+			method darObjetos(unCompaniero){
+				if(!unCompaniero.puedeRecibir(self.mochila())){
+					self.error("La mochila no tiene mas espacio suficiente")
+				}
+				else 
+					unCompaniero.recibirObjetos(self.mochila()) //El companiero de Morty debe entender este mensaje*
+					self.descartarObjetos()
+			}
+			
+			method puedeRecibir(materiales) = mochila.tieneEspacioParaRecibir(materiales)
+			
+				//Dado un material, elimina de dicho material de la mochila del personaje.
+			method sacar(unMaterial){
+				mochila.sacar(unMaterial)
+			}
+		
+				//Vacia totalmente la mochila del personaje.
+			method descartarObjetos(){
+				mochila.vaciar()
+			}
+						
+				//Dada una lista de materiales, los saca de la moochila del personaje.
+			method sacarEstos(unosMateriales){
+				mochila.sacarEstos(unosMateriales)
+			}
+			
+				//Retorna el companiero del personaje. En principio, este sera Morty, pero puede cambiar en el futuro.
+			method companiero() = companiero
+		
+				//Dado un companiero, asigna el mismo como companiero del personaje. 
+			method cambiarCompaniero(unCompaniero){
+				companiero = unCompaniero
+			}
+			
+			//Dada una coleccion de objetos, y un companiero, saca de la mochila, esos objetos y los deposita en la mochila de dicho companiero. Tales objetos deben estar en la mochila del personaje.
+			method darAlgunosObjetos(unosObjetos, unCompaniero){
+				mochila.sacarEstos(unosObjetos)
+				unCompaniero.recibir(unosObjetos)
+			}
+			
+}
+
+
+///////////////////////////////////////////////// Rick & Morty /////////////////////////////////////////////////
+
+object morty inherits Personaje(new MochilaConLimite(3), rick){
+	var energia = 100 //Inicialmente, Morty empieza con 100 de energia. Esto puede variar.(*1)
+		
+		
+		// (*1) setter de la energia por si en alguna ocasion se quiere empezar con otro valor
+		method energia(unaEnergia){ 
+					energia = unaEnergia//No pedido por el enunciado
+		}
+		
+		method energia() = energia
+		
+		method disminuirEnergia(unaCantidad){
+			energia = (energia  - unaCantidad).max(0)
+		}
+		
+		method incrementarEnergia(unaCantidad){
+			energia += unaCantidad 
+		}
+		
+			//Dado un material, retorna "True" en caso de que Morty pueda recolectar dicho material. Caso contrario retorna "False". 
+		method puedeRecolectar(unMaterial) = self.tieneLugarEnLamochila() && self.tieneEnergiaParaLevantar(unMaterial)
+
+		method tieneLugarEnLamochila() = mochila.tieneLugar()
+		 
+			//Dado un material, retorna "True" si Morty tiene energia para recolectar dicho material.
+		method tieneEnergiaParaLevantar(unMaterial) = energia >= unMaterial.cuantaEnergiaSeNecesitaParaRecolectarlo()
+			
+			//Dado un material, si Morty puede recogerlo, lo agrega a su mochila, caso contrario, tira un error avisando que no es posible realizar dicha accion. 
+		method recolectar(unMaterial){
+			if(! self.puedeRecolectar(unMaterial)){
+				self.error("Morty no puede recolectar el material en este momento.")
+			}
+			//Dudas sobre esta parte. De quien es la responsabilidad?
+			self.meterEnLaMochila(unMaterial)
+			unMaterial.provocarEfecto(self) //No estoy seguro de esta parte
+		}
+}
+
+object rick inherits Personaje(new Mochila(), morty){
+	//Inicialmente decimos que el companiero de Rick es Morty, pero esto puede variar en el futuro.	
+	var experimentos = #{construirBateria, construirCircuito/* , shockElectrico*/}	
+				
+			//Dado un experimento, agrega el mismo a la coleccion de experimentos de Rick. No pedido, pero se agrega para hacer el programa mas escalable, si se agregan experimentos en el futuro.
+		method agregarExperimento(unExperimento){
+			experimentos.add(unExperimento)//No pedido agregado por escalabilidad.	
+		}
+		 
+		method experimentosQuePuedeRealizar() = experimentos.filter { experimento => experimento.tieneMaterialesNecesarios(self.mochila()) }
+		
+		method sePuedeRealizar(unExperimento) =  self.experimentosQuePuedeRealizar().contains(unExperimento)
+			
+			
+		method realizar(unExperimento){
+			if(! self.sePuedeRealizar(unExperimento)){
+				self.error("Rick no puede hacer el experimento en este instante.")
+			}
+			unExperimento.agarrarLoQueNecesita(self.mochila())
+			unExperimento.loQueProvoca(self)
+			unExperimento.loQueProduce().provocarEfecto(self.companiero())//No estoy seguro de esta parte
+		}
+}
+
+
  
