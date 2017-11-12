@@ -1,0 +1,93 @@
+import RickAndMortyInit.*
+
+describe "Comportamiento de los Materiales Complejos"{
+			
+		//MATERIALES SIMPLES:
+	var latita = new Lata(2)
+	var superLata = new Lata(200)
+	var cablecito = new Cable(1, 2)
+	var cable = new Cable(12, 4)
+	var superCable = new Cable(1200, 40)
+	
+	var materiaOscurita = new MateriaOscura(cable)
+	
+		//Coleccion de materiales para que los Fleebs coman.
+	var cenaLigera = #{latita, cablecito, materiaOscurita}
+	var cenaPesada = #{superLata, cable}		
+			
+		//Fleeb NO radioactivo.
+	var miniFleeb = new Fleeb(0,cenaLigera)
+		//Fleebs radioactivos
+	var superFleeb = new Fleeb(16,cenaPesada)
+	var unFleeb = new Fleeb(16, #{superCable})
+	var materiaOscura = new MateriaOscura(miniFleeb)
+	
+	
+			//MATERIALES COMPLEJOS:
+		
+		var bateria = new Bateria(#{superLata, superFleeb})
+		var circuito = new Circuito(#{superCable, unFleeb})
+		//shockElectrico es tratado como experimento, no como material complejo  
+				
+		
+			fixture{
+				superFleeb.consumir(miniFleeb)
+				superFleeb.consumir(materiaOscura)
+			}
+			
+					//MensajeTesteado: .cantMetal():
+			
+				test "Cantidad de metal bateria"{
+					assert.equals(404.148, bateria.cantMetal())
+				}
+			
+				test "Cantidad de metal circuito"{
+					assert.equals(96, circuito.cantMetal())
+				}
+				
+					
+					//MensajeTesteado: .nivelDeConductividad():
+		
+				test "Nivel de Conductividad bateria"{
+					assert.equals(0, bateria.nivelDeConductividad())
+				}
+			
+				test "Nivel de Conductividad del circuito"{
+					assert.equals(720, circuito.nivelDeConductividad())
+				}
+			
+			
+					//MensajeTesteado: .electricidadGenerada():
+			
+				test "Electricidad generada por la bateria"{
+					assert.equals(808.296, bateria.electricidadGenerada())
+				}
+			
+				test "Electricidad generada por el circuito"{
+					assert.equals(0, circuito.electricidadGenerada())
+				}
+				
+				
+					//MensajeTesteado: .esRadioactivo():
+		
+				test "Es radiactiva la bateria?"{
+					assert.that(bateria.esRadiactivo())
+				}
+			
+				test "Es radiactivo el circuito?"{
+					assert.that(circuito.esRadiactivo())
+				}
+				
+				test "Genera electricidad la bateria?"{
+					assert.that(bateria.generaElectricidad())
+				}
+				
+				test "Conduce electricidad la bateria?"{
+					assert.notThat(bateria.conduceElectricidad())
+				}
+				
+				test "Conduce electricidad el circuito?"{
+					assert.that(circuito.conduceElectricidad())
+				}	
+}
+

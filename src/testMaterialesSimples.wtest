@@ -61,7 +61,6 @@ describe "Comportamiento de los Materiales Simples"{
 				assert.equals(24.148, superFleeb.cantMetal())
 			}	
 		
-		
 				//MensajeTesteado: .nivelDeConductividad():
 		
 			test "Nivel de Conductividad latita"{
@@ -125,7 +124,7 @@ describe "Comportamiento de los Materiales Simples"{
 			}
 			
 			test "Electricidad generada por el miniFleeb"{
-				assert.equals(0.2, miniFleeb.electricidadGenerada())
+				assert.equals(6, miniFleeb.electricidadGenerada())
 			}
 				
 			test "Electricidad generada por el superFleeb"{

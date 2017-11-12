@@ -208,7 +208,7 @@ class Experimento{//Si voy a dejar los metodos abstractos la clase es innecesari
 		
 			//Dada una persona, le saca a la misma los materiales que necesita el experimento.
 		method sacarleA(alguien){
-			alguien.sacar(self.materialesNecesarios())
+			alguien.sacarEstos(self.materialesNecesarios())
 		}
 		
 		method loQueProvoca(alguien){
@@ -279,9 +279,9 @@ object shockElectrico inherits Experimento{
 		
 		override method tieneMaterialesNecesarios(unaMochila)= self.tieneMaterialQueGenereElectricidad(unaMochila) and self.tieneMaterialQueConduzcaElectricidad(unaMochila) 
 			
-		override method loQueProduce(){
+		override method loQueProduce() = self
 			//No produce ningun material como el resto de los experimentos.
-		}
+		
 		
 		override method agarrarLoQueNecesita(unaMochila){
 			self.materialesNecesarios(unaMochila, condicionDeGenerarElectricidad)
@@ -289,8 +289,18 @@ object shockElectrico inherits Experimento{
 		} 
 		
 		override method loQueProvoca(alguien){
-			self.sacarleA(alguien)
-			//CONTROLAR ACA!
+			self.loQueProvoca(alguien, alguien.companiero())	
+		}
+		
+		method elGenerador() = materialesNecesarios.max { materiales => materiales.electricidadGenerada() }
+		
+		method capacidadConductor() = materialesNecesarios.max { materiales => materiales.nivelDeConductividad() } 
+		
+		method capacidadGenerador() = self.elGenerador().electricidadGenerada()
+		
+		method loQueProvoca(alguien1, alguien2){
+			self.sacarleA(alguien1)
+			alguien2.aumentarEnergia(self.capacidadGenerador() * self.capacidadConductor())
 		}
 }
 
@@ -315,7 +325,6 @@ class Mochila{
 			objetos.removeAll(unosObjetos)
 		}
 		
-		
 		method vaciar(){
 			objetos = #{}
 		}
@@ -339,10 +348,26 @@ class Mochila{
 			method laMedidaDe(materiales) = materiales.size()
 	 
 			method espacioDisponible() =  limite - self.cuantosObjetosTiene()  						
-
+			
+			method errorDeEspacio(){
+				self.error("No hay suficiente espacio")
+			} 
+			
+			override method agregarEstos(materiales){
+				if(!self.tieneEspacioParaRecibir(materiales)){
+					self.errorDeEspacio()
+				}  
+				super(materiales)
+			}
+			
+			override method agregar(material){
+				if(!self.tieneLugar()){
+					self.errorDeEspacio()		
+				}
+				super(material)
+			}
+			
 			override method tieneEspacioParaRecibir(materiales)  = self.laMedidaDe(materiales) <= self.espacioDisponible()
-	
-
 }
 
 
@@ -414,7 +439,6 @@ class Personaje{//Clase creada por comodidad para juntar el comportamiento en co
 				mochila.sacarEstos(unosObjetos)
 				unCompaniero.recibir(unosObjetos)
 			}
-			
 }
 
 
@@ -469,16 +493,15 @@ object rick inherits Personaje(new Mochila(), morty){
 		 
 		method experimentosQuePuedeRealizar() = experimentos.filter { experimento => experimento.tieneMaterialesNecesarios(self.mochila()) }
 		
-		method sePuedeRealizar(unExperimento) =  self.experimentosQuePuedeRealizar().contains(unExperimento)
-			
+		method sePuedeRealizar(unExperimento) = unExperimento.tieneMaterialesNecesarios(self.mochila())
 			
 		method realizar(unExperimento){
 			if(! self.sePuedeRealizar(unExperimento)){
 				self.error("Rick no puede hacer el experimento en este instante.")
 			}
-			unExperimento.agarrarLoQueNecesita(self.mochila())
+			unExperimento.agarrarLoQueNecesita(self.mochila())//Es decir, copia los materiales que necesita de la mochila en la coleccion de materiales necesarios para el experimento
 			unExperimento.loQueProvoca(self)
-			unExperimento.loQueProduce().provocarEfecto(self.companiero())//No estoy seguro de esta parte
+			unExperimento.loQueProduce().provocarEfecto(self.companiero())
 		}
 }
 

@@ -1,7 +1,5 @@
 import RickAndMortyInit.*
 
-
-
 describe   " Personajes en marcha "{
 
 	
@@ -47,17 +45,13 @@ describe   " Personajes en marcha "{
 				morty.recolectar(superLata)
 				morty.darObjetos(rick)
 			}
-			method rickConstruyeUnaBateria(){
-					self.accionesCaritativas()
-					rick.realizar(construirBateria)
-			}
 
 				test  "Energia de Morty" {
 					assert.equals(45.606,morty.energia())
 				}	
 	
-				test  "Morty intenta enviar materiales a Summer"{// Summer tiene un limite de 2 y Morty tiene 3 elementos
-					
+				test  "Morty intenta enviar materiales a Summer"{// Summer tiene un limite de 2
+					morty.darObjetos(summer)
 					assert.throwsExceptionWithMessage("La mochila no tiene mas espacio suficiente",{morty.darObjetos(summer)})
 				}
 	
@@ -82,23 +76,8 @@ describe   " Personajes en marcha "{
 				}
 	
 				test "Rick crea una bateria y Morty pierde 5 de energia"{
-					 self.rickConstruyeUnaBateria()
+					self.accionesCaritativas()
+					rick.realizar(construirBateria)
 					assert.equals(139.606,morty.energia())
 				}
-				test "Rick puede crear un circuito con su Bateria ( la unica que tiene en su mochila que produce mas de 2 amperes"{
-					self.rickConstruyeUnaBateria()
-					assert.that(rick.sePuedeRealizar(construirCircuito))
-					
-				}
-				test "experimentos que puede realizar Rick"{
-					self.mortyEntregaMaterialesARick()
-					self.accionesCaritativas()
-					
-					assert.equals(#{construirBateria,construirCircuito},rick.experimentosQuePuedeRealizar())
-				}
-
-				
-				
-				
-				
 }
