@@ -51,7 +51,6 @@ describe   " Personajes en marcha "{
 				}	
 	
 				test  "Morty intenta enviar materiales a Summer"{// Summer tiene un limite de 2
-					morty.darObjetos(summer)
 					assert.throwsExceptionWithMessage("La mochila no tiene mas espacio suficiente",{morty.darObjetos(summer)})
 				}
 	

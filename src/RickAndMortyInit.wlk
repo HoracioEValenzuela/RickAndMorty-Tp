@@ -277,6 +277,18 @@ object shockElectrico inherits Experimento{
 	
 		method tieneMaterialQueConduzcaElectricidad(unaMochila) = self.hayMaterialesQueCumplan(unaMochila, condicionDeConducirElectricidad)
 		
+		method elGenerador() = materialesNecesarios.max { materiales => materiales.electricidadGenerada() }
+		
+		method elConductor() = materialesNecesarios.max { materiales => materiales.nivelDeConductividad() } 
+		
+		method capacidadConductor() = self.elConductor().nivelDeConductividad()
+		
+		method capacidadGenerador() = self.elGenerador().electricidadGenerada()
+		
+		method producirEfecto(alguien){
+			alguien.aumentarEnergia(self.capacidadGenerador() * self.capacidadConductor())
+		}
+		
 		override method tieneMaterialesNecesarios(unaMochila)= self.tieneMaterialQueGenereElectricidad(unaMochila) and self.tieneMaterialQueConduzcaElectricidad(unaMochila) 
 			
 		override method loQueProduce() = self
@@ -289,18 +301,7 @@ object shockElectrico inherits Experimento{
 		} 
 		
 		override method loQueProvoca(alguien){
-			self.loQueProvoca(alguien, alguien.companiero())	
-		}
-		
-		method elGenerador() = materialesNecesarios.max { materiales => materiales.electricidadGenerada() }
-		
-		method capacidadConductor() = materialesNecesarios.max { materiales => materiales.nivelDeConductividad() } 
-		
-		method capacidadGenerador() = self.elGenerador().electricidadGenerada()
-		
-		method loQueProvoca(alguien1, alguien2){
-			self.sacarleA(alguien1)
-			alguien2.aumentarEnergia(self.capacidadGenerador() * self.capacidadConductor())
+			self.sacarleA(alguien)
 		}
 }
 
@@ -375,11 +376,9 @@ class Mochila{
 
 class Personaje{//Clase creada por comodidad para juntar el comportamiento en comun de Rick y de Morty.
 	var mochila
-	var companiero 
 			
-		constructor(unaMochila, unCompaniero){
+		constructor(unaMochila){
 			mochila = unaMochila
-			companiero = unCompaniero
 		}
 					
 				//Dado una coleccion de objetos, los guarda en la mochila. No pedido, agregado por comodidad a la hora de hacer el test.
@@ -425,6 +424,24 @@ class Personaje{//Clase creada por comodidad para juntar el comportamiento en co
 			method sacarEstos(unosMateriales){
 				mochila.sacarEstos(unosMateriales)
 			}
+				
+			//Dada una coleccion de objetos, y un companiero, saca de la mochila, esos objetos y los deposita en la mochila de dicho companiero. Tales objetos deben estar en la mochila del personaje.
+			method darAlgunosObjetos(unosObjetos, unCompaniero){
+				mochila.sacarEstos(unosObjetos)
+				unCompaniero.recibir(unosObjetos)
+			}
+}
+
+class PersonajeRecolector inherits Personaje{
+	constructor(unaCapacidadMaima) = super(new MochilaConLimite(unaCapacidadMaima))
+}
+
+class PersonajeCreador inherits Personaje{
+	var companiero
+		
+		constructor(unCompaniero) = super(new Mochila()){
+			companiero = unCompaniero
+		}
 			
 				//Retorna el companiero del personaje. En principio, este sera Morty, pero puede cambiar en el futuro.
 			method companiero() = companiero
@@ -433,18 +450,12 @@ class Personaje{//Clase creada por comodidad para juntar el comportamiento en co
 			method cambiarCompaniero(unCompaniero){
 				companiero = unCompaniero
 			}
-			
-			//Dada una coleccion de objetos, y un companiero, saca de la mochila, esos objetos y los deposita en la mochila de dicho companiero. Tales objetos deben estar en la mochila del personaje.
-			method darAlgunosObjetos(unosObjetos, unCompaniero){
-				mochila.sacarEstos(unosObjetos)
-				unCompaniero.recibir(unosObjetos)
-			}
 }
 
 
 ///////////////////////////////////////////////// Rick & Morty /////////////////////////////////////////////////
 
-object morty inherits Personaje(new MochilaConLimite(3), rick){
+object morty inherits PersonajeRecolector(3){
 	var energia = 100 //Inicialmente, Morty empieza con 100 de energia. Esto puede variar.(*1)
 		
 		
@@ -482,7 +493,7 @@ object morty inherits Personaje(new MochilaConLimite(3), rick){
 		}
 }
 
-object rick inherits Personaje(new Mochila(), morty){
+object rick inherits PersonajeCreador(morty){
 	//Inicialmente decimos que el companiero de Rick es Morty, pero esto puede variar en el futuro.	
 	var experimentos = #{construirBateria, construirCircuito/* , shockElectrico*/}	
 				
@@ -504,6 +515,3 @@ object rick inherits Personaje(new Mochila(), morty){
 			unExperimento.loQueProduce().provocarEfecto(self.companiero())
 		}
 }
-
-
- 
