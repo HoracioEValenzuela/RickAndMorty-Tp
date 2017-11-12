@@ -21,17 +21,13 @@ describe "Comportamiento de los Materiales Simples"{
 	
 	var materiaOscura = new MateriaOscura(miniFleeb)
 	
-		//Coleccion de materiales para que el Fleebsaurio coma.
-	var comidaMuyPesada = #{latita,lata, cablecito, cable, materiaOscurita, materiaOscura, miniFleeb, superFleeb }
-	var fleebsaurioRex = new Fleeb(2000, comidaMuyPesada)
+		
 	
 		fixture{
 			
 			superFleeb.consumir(miniFleeb)
 			superFleeb.consumir(materiaOscura)
-			morty.recolectar(miniFleeb)
-			morty.recolectar(superFleeb)
-			morty.recolectar(materiaOscura)
+
 		}
 	
 	
@@ -98,13 +94,5 @@ describe "Comportamiento de los Materiales Simples"{
 			test "Es radioactivo el superFleeb"{
 				assert.that(superFleeb.esRadioactivo())
 			}
-			
-			//// PERSONAJES EN MARCHA ////
-			test "energia de Morty"{
-				assert.equals(55.101,morty.energia())
-			}
-			/*test "Morty no puede recolectar mas"{
-				asd
-			}*/
-			
+
 }

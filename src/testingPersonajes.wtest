@@ -1,0 +1,92 @@
+import RickAndMortyInit.*
+
+
+
+describe   " Personajes en marcha "{
+
+	
+	var latita = new Lata(2)
+	var lata = new Lata(20)
+	var superLata= new Lata(201)
+	var cablecito = new Cable(1, 5)
+	var cable = new Cable(12, 8)
+	var materiaOscurita = new MateriaOscura(cable)
+	var summer = new Personaje(new MochilaConLimite(2),morty)
+		
+		//Coleccion de materiales para que los Fleebs coman.
+	var cenaLigera = #{latita, cablecito, materiaOscurita}
+	var cenaPesada = #{lata, cable}
+			
+		//Fleeb NO radioactivo.
+	var miniFleeb = new Fleeb(0,cenaLigera)
+		//Fleeb radioactivo
+	var superFleeb = new Fleeb(16,cenaPesada)
+	
+	var materiaOscura = new MateriaOscura(miniFleeb)
+	
+		//Coleccion de materiales para que el Fleebsaurio coma.
+	var comidaMuyPesada = #{latita,lata, cablecito, cable, materiaOscurita, materiaOscura, miniFleeb, superFleeb }
+	var fleebsaurioRex = new Fleeb(2000, comidaMuyPesada)
+	
+	
+		fixture{
+			
+		
+			morty.recolectar(miniFleeb)
+			morty.recolectar(superFleeb)
+			morty.recolectar(lata)
+			
+		}
+		method recoleccionDeMorty(){
+				morty.recolectar(latita)
+				morty.recolectar(cablecito)
+				morty.recolectar(cable)
+		}
+		method mortyEntregaMaterialesARick(){
+			morty.darObjetos(rick)
+			self.recoleccionDeMorty()
+			morty.darObjetos(rick)
+		}
+		method accionesCaritativas(){
+			morty.darObjetos(rick)
+			morty.incrementarEnergia(300)// Si no se le subia la energia, Rick jamas iba a poder crear una bateria
+			morty.recolectar(superLata)
+			morty.darObjetos(rick)
+		}
+
+	test  "Energia de Morty" {
+		assert.equals(45.606,morty.energia())
+	}
+	test  "Morty intenta enviar materiales a suumer"{// Summer tiene un limite de 2
+		assert.throwsExceptionWithMessage("La mochila no tiene mas espacio suficiente",{morty.darObjetos(summer)})
+	}
+	test "Morty entrega materiales a Rick"{
+		self.mortyEntregaMaterialesARick()
+		assert.equals(#{miniFleeb,superFleeb,lata,latita,cablecito,cable},rick.mochila())
+	}
+	test "Rick no puede construir bateria"{
+		self.mortyEntregaMaterialesARick()
+
+		assert.notThat(rick.sePuedeRealizar(construirBateria))
+	}
+	
+	test "Rick puede contruir una bateria"{
+		self.accionesCaritativas()
+		assert.that(rick.sePuedeRealizar(construirBateria))
+	}
+	test " Energia de morty luego de subirla"{
+		self.accionesCaritativas()
+		assert.equals(144.606,morty.energia())
+	}
+	test "Rick crea una bateria y Morty pierde 5 de energia"{
+		self.accionesCaritativas()
+		rick.realizar(construirBateria)
+		assert.equals(139.606,morty.energia())
+	}
+	
+	
+	
+	
+	
+	
+}

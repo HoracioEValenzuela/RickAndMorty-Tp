@@ -10,8 +10,8 @@ class Personaje{//Clase creada por comodidad para juntar el comportamiento en co
 		}
 					
 				//Dado una coleccion de objetos, los guarda en la mochila. No pedido, agregado por comodidad a la hora de hacer el test.
-			method recibirObjetos(unosObjetos){
-				mochila.agregarEstos(unosObjetos)
+			method recibirObjetos(unosMateriales){
+				mochila.agregarEstos(unosMateriales)
 			}	
 			
 			
@@ -23,14 +23,23 @@ class Personaje{//Clase creada por comodidad para juntar el comportamiento en co
 			method mochila() = mochila.objetos()
 		
 				//Dado un companiero, agrega la mochila del persona en la del dicho companiero. 
-			method darObjetos(unCompaniero){
-				unCompaniero.recibirObjetos(mochila) //El companiero de Morty debe entender este mensaje*
+			/*method darObjetos(unCompaniero){
+				unCompaniero.recibirObjetos(self.mochila()) //El companiero de Morty debe entender este mensaje*
 				self.descartarObjetos()
+			}*/
+			method darObjetos(unCompaniero){
+				if(! unCompaniero.puedeRecibir(self.mochila())){
+					self.error("La mochila no tiene mas espacio suficiente")
+				}
+				else 
+					unCompaniero.recibirObjetos(self.mochila()) //El companiero de Morty debe entender este mensaje*
+					self.descartarObjetos()
 			}
-		
+			method puedeRecibir(materiales) = mochila.tieneEspacioParaRecibir(materiales)
+			
 				//Dado un material, elimina de dicho material de la mochila del personaje.
 			method sacar(unMaterial){
-				mochila.sacar(unMaterial)
+				self.mochila().remove(unMaterial)
 			}
 		
 				//Vacia totalmente la mochila del personaje.
@@ -40,7 +49,7 @@ class Personaje{//Clase creada por comodidad para juntar el comportamiento en co
 						
 				//Dada una lista de materiales, los saca de la moochila del personaje.
 			method sacarEstos(unosMateriales){
-				mochila.sacarEstos(unosMateriales)
+				self.mochila().removeAll(unosMateriales)
 			}
 			
 				//Retorna el companiero del personaje. En principio, este sera Morty, pero puede cambiar en el futuro.
@@ -51,7 +60,6 @@ class Personaje{//Clase creada por comodidad para juntar el comportamiento en co
 				companiero = unCompaniero
 			}
 			
-
 }
 
 
@@ -113,7 +121,7 @@ object rick inherits Personaje(new Mochila(), morty){
 			}
 			experimento.agarrarLoQueNecesita(self.mochila())
 			experimento.loQueProvoca(self)
-			experimento.loQueProduce().producirEfecto(self.companiero())//No estoy seguro de esta parte
+			experimento.loQueProduce().provocarEfecto(self.companiero())//No estoy seguro de esta parte
 		}
 }
 
@@ -132,17 +140,10 @@ class Mochila{
 			objetos.add(objeto)
 		}
 		
-		method sacarEstos(unosObjetos){
-			objetos.removeAll(unosObjetos)
-		}
-		
-		method sacar(objeto){
-			objetos.remove(objeto)
-		}	
-		
 		method vaciar(){
 			objetos = #{}
 		}
+		method tieneEspacioParaRecibir(materiales) = true
 		
 		method cuantosObjetosTiene() = objetos.size()
 		
@@ -160,27 +161,11 @@ class MochilaConLimite inherits Mochila{
 		
 			method laMedidaDe(materiales) = materiales.size()  
 	 
-			method tieneEspacioParaRecibir(materiales)  = self.laMedidaDe(materiales) >= self.espacioDisponible()
+			override method tieneEspacioParaRecibir(materiales)  = self.laMedidaDe(materiales) <= self.espacioDisponible()
 	
 			method espacioDisponible() =  limite - self.cuantosObjetosTiene()  
-		
-			method errorDeEspacio(){ 
-					self.error("La mochila no tiene mas espacio")
-			}
-			
-			override method agregarEstos(unosObjetos){//Puede ser que la lista de objetos
-					if(!self.tieneEspacioParaRecibir(unosObjetos)){
-								self.errorDeEspacio()	
-					}
-						super(unosObjetos)
-			}
+	
 						
-			override method agregar(objeto){
-					if(!self.tieneLugar()){
-							self.errorDeEspacio()
-					}
-					super(objeto)
-			}
 }
 		
 		 
@@ -190,7 +175,7 @@ class MochilaConLimite inherits Mochila{
  
 class Material{
 				
-		method esRadioactivo() = false //A excepcion del Fleeb, los materiales no son radioactivos.
+		method esRadiactivo() = false //A excepcion del Fleeb, los materiales no son radioactivos.
 		
 		method electricidadGenerada() = 0 //Esto esta bien? 
 			
@@ -208,7 +193,9 @@ class Material{
 		
 		method cantMetal() //Abstracto - Si bien es la super clase Material el metodo es abstracto se espera que lo que devuelve esta expresado en grs. 
 		
-		method nivelDeConductividad() //Abstracto			
+		method nivelDeConductividad() //Abstracto		
+		
+		
 }
 
 class Lata inherits Material{
@@ -276,13 +263,13 @@ class Fleeb inherits Material{
 					//Retorna el material consumido por el Fleeb que menos conductividad posee. 
 				method elMaterialConsumidoQueMenosConduce() = materialesConsumidos.min { material => material.nivelDeConductividad() }
 					
-				override method esRadioactivo() = self.edad() > 15 
+				override method esRadiactivo() = self.edad() > 15 
 				
 				override method cuantaEnergiaSeNecesitaParaRecolectarlo() = 2 * super() 
 				
 					//Dado un "alguien", si el Fleeb NO es radioactivo, aumenta la energia del individuo en 10 unidades. Caso contrario, actua como el resto de los materiales. 
 				override method provocarEfecto(alguien){
-					if(! self.esRadioactivo()){
+					if(! self.esRadiactivo()){
 						alguien.incrementarEnergia(10)
 					}				
 					super(alguien)//Esto me hace ruido todavia. A su vez, entendemos que todo material cansa a quien lo recoge.
@@ -326,7 +313,7 @@ class Bateria inherits MaterialCompuesto{
 		
 		override method electricidadGenerada() = 2 * self.cantMetal()
 		
-		override method esRadioactivo() = true
+		override method esRadiactivo() = true
 		
 		override method provocarEfecto(alguien){
 			alguien.disminuirEnergia(5)
@@ -339,7 +326,7 @@ class Circuito inherits MaterialCompuesto{
 	
 	override method nivelDeConductividad() = self.loQueConducenSusComponentes() * 3
 	
-	override method esRadioactivo() = componentes.any { componente => componente.esRadioactivo() }
+	override method esRadiactivo() = componentes.any { componente => componente.esRadioactivo() }
 	
 	override method generaElectricidad() = false //Ver si es necesario, dado que material no modifica la cantidad de electricidad generada y en esa clase se detemrina que un material genera electricidad si su self.electricidadGenerada() > 0
 
@@ -379,7 +366,7 @@ class Experimento{//Si voy a dejar los metodos abstractos la clase es innecesari
 		}		
 		
 		method loQueProvoca(alguien){
-			alguien.sacarTodos(self.materialesNecesarios())
+			alguien.sacarEstos(self.materialesNecesarios())
 			alguien.meterEnLaMochila(self.loQueProduce())//VER ESTO EN EL SHOCK ELECTRICO
 		}
 
@@ -403,16 +390,11 @@ object construirBateria inherits Experimento{
 		override method agarrarLoQueNecesita(unaMochila){
 			self.materialesNecesarios(unaMochila, condicionDeRadiactivo)
 			self.materialesNecesarios(unaMochila, condicionDeMetal)
-			
-			/*
-			materialesNecesarios.add(mochila.find(condicionDeRadiactivo))
-			materialesNecesarios.add(mochila.find(condicionDeMetal))
-			 */
+		
 		}
+	/* 	method elMaterialRadioactivo() = materialesNecesarios.find(condicionDeRadiactivo)
 		
-		method elMaterialRadioactivo() = materialesNecesarios.find(condicionDeRadiactivo)
-		
-		method elMaterialMetalico() = materialesNecesarios.find(condicionDeMetal)
+		method elMaterialMetalico() = materialesNecesarios.find(condicionDeMetal)*/
 		
 		override method loQueProduce() = new Bateria(materialesNecesarios)
 }        
