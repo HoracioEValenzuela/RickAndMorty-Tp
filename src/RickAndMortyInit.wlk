@@ -406,8 +406,28 @@ class Personaje{//Clase creada por comodidad para juntar el comportamiento en co
 			}
 }
 
-class PersonajeRecolector inherits Personaje{
-	constructor(unaCapacidadMaima) = super(new MochilaConLimite(unaCapacidadMaima))
+class PersonajeCompaniero inherits Personaje{
+	var energia 
+	
+	constructor(unaCapacidadMaima, unaEnergia) = super(new MochilaConLimite(unaCapacidadMaima)){
+		energia = unaEnergia
+	}
+		
+		
+		// (*1) setter de la energia por si en alguna ocasion se quiere empezar con otro valor
+		method energia(unaEnergia){ 
+					energia = unaEnergia//No pedido por el enunciado
+		}
+		
+		method energia() = energia
+		
+		method disminuirEnergia(unaCantidad){
+			energia = (energia  - unaCantidad).max(0)
+		}
+		
+		method incrementarEnergia(unaCantidad){
+			energia += unaCantidad 
+		}
 }
 
 class PersonajeCreador inherits Personaje{
@@ -435,31 +455,11 @@ class PersonajeCreador inherits Personaje{
 
 
 ///////////////////////////////////////////////// Rick & Morty /////////////////////////////////////////////////
-
-object morty inherits PersonajeRecolector(3){
-	var energia = 100 //Inicialmente, Morty empieza con 100 de energia. Esto puede variar.(*1)
-		
-		
-		// (*1) setter de la energia por si en alguna ocasion se quiere empezar con otro valor
-		method energia(unaEnergia){ 
-					energia = unaEnergia//No pedido por el enunciado
-		}
-		
-		method energia() = energia
-		
-		method disminuirEnergia(unaCantidad){
-			energia = (energia  - unaCantidad).max(0)
-		}
-		
-		method incrementarEnergia(unaCantidad){
-			energia += unaCantidad 
-		}
-		
-			//Dado un material, retorna "True" en caso de que Morty pueda recolectar dicho material. Caso contrario retorna "False". 
-		method puedeRecolectar(unMaterial) = self.tieneLugarEnLamochila() && self.tieneEnergiaParaLevantar(unMaterial)
-
-		method tieneLugarEnLamochila() = mochila.tieneLugar()
-		 
+										
+										//Limite mochila - energia respectivamente
+object morty inherits PersonajeCompaniero(3, 100){
+	//Inicialmente, Morty empieza con 100 de energia. Esto podria llegar a variar.(*1)
+ 
 			//Dado un material, retorna "True" si Morty tiene energia para recolectar dicho material.
 		method tieneEnergiaParaLevantar(unMaterial) = energia >= unMaterial.cuantaEnergiaSeNecesitaParaRecolectarlo()
 			
@@ -472,6 +472,10 @@ object morty inherits PersonajeRecolector(3){
 			self.meterEnLaMochila(unMaterial)
 			unMaterial.provocarEfecto(self) //No estoy seguro de esta parte
 		}
+		method tieneLugarEnLamochila() = mochila.tieneLugar()		
+				
+			//Dado un material, retorna "True" en caso de que Morty pueda recolectar dicho material. Caso contrario retorna "False". 
+		method puedeRecolectar(unMaterial) = self.tieneLugarEnLamochila() && self.tieneEnergiaParaLevantar(unMaterial)
 }
 
 object rick inherits PersonajeCreador(morty, #{construirBateria, construirCircuito, shockElectrico}){
