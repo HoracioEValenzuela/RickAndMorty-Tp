@@ -47,7 +47,7 @@ describe   " Personajes en marcha "{
 			}
 
 				test  "Energia de Morty" {
-					assert.equals(45.606,morty.energia())
+					assert.equals(45.606,morty.energia())//Se modifica en el ficture al recolectar (inicial 100)
 				}	
 	
 				test  "Morty intenta enviar materiales a Summer"{// Summer tiene un limite de 2

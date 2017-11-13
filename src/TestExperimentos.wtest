@@ -6,7 +6,7 @@ describe " Experimentos Con Personajes " {
 	var superLata = new Lata(20)
 	var cablecito = new Cable(1, 5)
 	var cable = new Cable(12, 8)
-	var superCable = new Cable(1200, 800)
+	var superCable = new Cable(1200, 900)
 	var materiaOscurita = new MateriaOscura(cable)
 		
 		//Coleccion de materiales para que los Fleebs coman.
@@ -29,19 +29,18 @@ describe " Experimentos Con Personajes " {
 		}
 			
 			
-				/*
-				 *Aclaracion:
-				 	Estos 2 tests dan errores muy locos. Basicamente dicen:
-				 	... was expected "Rick no puede hacer el experimento en este instante" but got "Rick no puede hacer el experimento en este instante" (?)
-			
+				
+
 			test"Error cuando Rick construye la bateria"{
+				rick.mochila().clear()
 				assert.throwsExceptionWithMessage("Rick no puede hacer el experimento en este instante",{rick.realizar(construirBateria)})
 			}
 			
 			test"Error cuando Rick construye el circuito"{
+				rick.mochila().clear()
 				assert.throwsExceptionWithMessage("Rick no puede hacer el experimento en este instante", {rick.realizar(construirCircuito)})
 			}
-				*/
+				
 			
 			test "Rick NO puede hacer el experimento de bateria"{
 				rick.mochila().clear()
@@ -71,12 +70,6 @@ describe " Experimentos Con Personajes " {
 				assert.that(rick.sePuedeRealizar(shockElectrico))
 			}
 			
-				/*
-				 ACLARACION: ESTE TEST DA AMARILLO A PROPOSITO; PARA MOSTRAR QUE LOS MATERIALES PUEDE HACER RICK ERAN LOS ESERADOS.
-			test "Que experimentos puede realizar Rick?"{
-				assert.equals(#{}, rick.experimentosQuePuedeRealizar())
-			}
-				*/
 			
 			test "Rick construye bateria"{
 				rick.realizar(construirBateria)
@@ -89,9 +82,13 @@ describe " Experimentos Con Personajes " {
 			}
 			
 			test "Rick construye un Shock Electrico "{
-				morty.energia(0)
+				morty.energia(200)
+				rick.mochila().clear()
+				morty.recolectar(miniFleeb)
+				morty.darObjetos(rick)
 				rick.realizar(shockElectrico)
-				assert.equals(0.40, morty.energia())
+				assert.equals(205.838, morty.energia())  	
+				
 			}
 			
 			test "shockElectrico"{
