@@ -367,9 +367,8 @@ class Personaje{//Clase creada por comodidad para juntar el comportamiento en co
 				if(! unCompaniero.puedeRecibir(self.mochila())){
 					self.error("La mochila no tiene mas espacio suficiente")
 				}
-				else 
-					unCompaniero.recibirObjetos(self.mochila()) //El companiero de Morty debe entender este mensaje*
-					self.descartarObjetos()
+				unCompaniero.recibirObjetos(self.mochila()) //El companiero de Morty debe entender este mensaje*
+				self.descartarObjetos()
 			}
 			
 			method puedeRecibir(materiales) = mochila.tieneEspacioParaRecibir(materiales)
@@ -484,6 +483,7 @@ object rick inherits Personaje(new Mochila()){
 				self.accionesEnLaMochilaAlCrear(unExperimento)
 				
 			}
+			
 			method accionesEnLaMochilaAlCrear(unExperimento){
 				mochila.sacarEstos(unExperimento.materialesNecesarios())
 				mochila.agregar(unExperimento.loQueProduce())
