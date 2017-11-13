@@ -224,7 +224,7 @@ object construirBateria inherits Experimento{
 		override method tieneMaterialesNecesarios(unaMochila) = self.hayMaterialesRadiactivos(unaMochila) and  self.hayMaterialesConMuchoMetal(unaMochila)
 		
 			//Retorna una bateria cuyos componentes son los materiales necesarios del experimento.
-		override method loQueProduce() = new Bateria(materialesNecesarios)
+		override method loQueProduce() = new Bateria(self.materialesNecesarios())
 }        
 
 object construirCircuito inherits Experimento{
@@ -250,7 +250,7 @@ object construirCircuito inherits Experimento{
 
 object shockElectrico inherits Experimento{
 	const condicionDeGenerarElectricidad = { material => material.generaElectricidad() }
-	const condicionDeConducirElectricidad = { material.conduceElectricidad() }		
+	const condicionDeConducirElectricidad = { material => material.conduceElectricidad() }		
 	
 		method tieneMaterialQueGenereElectricidad(unaMochila) = self.hayMaterialesQueCumplan(unaMochila, condicionDeGenerarElectricidad)
 	
@@ -264,8 +264,8 @@ object shockElectrico inherits Experimento{
 		
 		method capacidadGenerador() = self.elGenerador().electricidadGenerada()
 		
-		method producirEfecto(alguien){
-			alguien.aumentarEnergia(self.capacidadGenerador() * self.capacidadConductor())
+		method provocarEfecto(alguien){
+			alguien.incrementarEnergia(self.capacidadGenerador() * self.capacidadConductor())
 		}
 				
 		override method tieneMaterialesNecesarios(unaMochila)= self.tieneMaterialQueGenereElectricidad(unaMochila) and self.tieneMaterialQueConduzcaElectricidad(unaMochila) 
@@ -287,7 +287,7 @@ object shockElectrico inherits Experimento{
  ///////////////////////////////////////////////// Mochilas /////////////////////////////////////////////////
 
 class Mochila{
-	var objetos = #{} //Seria const, pero el hecho de vaciar se me facilita que sea var.
+	const objetos = #{} //Seria const, pero el hecho de vaciar se me facilita que sea var.
 		
 		method agregar(objeto){
 			objetos.add(objeto)
@@ -306,7 +306,7 @@ class Mochila{
 		}
 		
 		method vaciar(){
-			objetos = #{}
+			objetos.clear()
 		}
 		
 		method tieneEspacioParaRecibir(materiales) = true
@@ -354,7 +354,7 @@ class Mochila{
 ///////////////////////////////////////////////// Personajes /////////////////////////////////////////////////
 
 class Personaje{//Clase creada por comodidad para juntar el comportamiento en comun de Rick y de Morty.
-	var mochila
+	const mochila
 			
 		constructor(unaMochila){
 			mochila = unaMochila
@@ -374,7 +374,7 @@ class Personaje{//Clase creada por comodidad para juntar el comportamiento en co
 			method mochila() = mochila.objetos()
 		
 			method darObjetos(unCompaniero){
-				if(! unCompaniero.puedeRecibir(self.mochila())){
+				if(!unCompaniero.puedeRecibir(self.mochila())){
 					self.error("La mochila no tiene mas espacio suficiente")
 				}
 				else 
@@ -413,6 +413,7 @@ class PersonajeRecolector inherits Personaje{
 class PersonajeCreador inherits Personaje{
 	var companiero
 	const experimentos		
+	
 		constructor(unCompaniero, unosExperimentos) = super(new Mochila()){
 			companiero = unCompaniero
 			experimentos = unosExperimentos
@@ -424,13 +425,12 @@ class PersonajeCreador inherits Personaje{
 				//Dado un companiero, asigna el mismo como companiero del personaje. 
 			method cambiarCompaniero(unCompaniero){
 				companiero = unCompaniero
+			}	
+			
+				//Dado un experimento, agrega el mismo a la coleccion del personaje. No pedido, pero se agrega para hacer el programa mas escalable, si se agregan experimentos en el futuro.
+			method agregarExperimento(unExperimento){
+				experimentos.add(unExperimento)//
 			}
-			
-			
-			//Dado un experimento, agrega el mismo a la coleccion del personaje. No pedido, pero se agrega para hacer el programa mas escalable, si se agregan experimentos en el futuro.
-		method agregarExperimento(unExperimento){
-			experimentos.add(unExperimento)//
-		}
 }
 
 
@@ -477,7 +477,7 @@ object morty inherits PersonajeRecolector(3){
 object rick inherits PersonajeCreador(morty, #{construirBateria, construirCircuito, shockElectrico}){
 	//Inicialmente decimos que el companiero de Rick es Morty, pero esto puede variar en el futuro.
 	//Lo mismo decimos que los experimentos que saber hacer rick es el construoir la bateria, el circuito y el shock electrico, pero esta tmb puede cambiar.	
-							 
+												 
 		method experimentosQuePuedeRealizar() = experimentos.filter { experimento => experimento.tieneMaterialesNecesarios(self.mochila()) }
 		
 		method sePuedeRealizar(unExperimento) = unExperimento.tieneMaterialesNecesarios(self.mochila())

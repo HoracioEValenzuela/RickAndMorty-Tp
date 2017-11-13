@@ -1,0 +1,38 @@
+import RickAndMortyInit.*
+
+describe "Comortamiento de las mochilas ante un personaje y sin ellos: "{
+			
+			var superLata = new Lata(20)
+			var latita = new Lata(2)
+			var cablecito = new Cable(1, 5)
+			var cable = new Cable(12, 8)
+			var materiaOscurita = new MateriaOscura(cable)
+		
+				//Coleccion de materiales para que los Fleebs coman.
+			var cenaLigera = #{latita, cablecito, materiaOscurita}
+			var cenaPesada = #{superLata, cable}
+			
+				//Fleeb NO radioactivo
+			var miniFleeb = new Fleeb(0,cenaLigera)
+				//Fleeb radioactivo
+			var superFleeb = new Fleeb(16,cenaPesada)
+	
+				
+				fixture{
+					morty.recolectar(superLata)
+					morty.recolectar(superFleeb)
+					morty.recolectar(miniFleeb)
+				}
+					
+					test "Morty da objetos a Rick"{
+						morty.darObjetos(rick)
+						assert.equals(#{}, morty.mochila())
+					}	
+			
+			
+					test "Rick recibe objetos"{
+						morty.darObjetos(rick)
+						assert.equals(#{superLata, superFleeb, miniFleeb}, rick.mochila())
+					}
+		
+}
