@@ -127,8 +127,6 @@ class MateriaOscura inherits Material{
 			override method electricidadGenerada() = materialBase.electricidadGenerada() * 2 
 
 			override method esRadiactivo() = materialBase.esRadiactivo()
-			
-			override method esVivo() = materialBase.esVivo()
 }
 
 
