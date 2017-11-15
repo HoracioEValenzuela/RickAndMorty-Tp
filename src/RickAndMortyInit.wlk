@@ -12,7 +12,7 @@ class Material{
 		
 			//Dada un "alguien", disminuye la energia del mismo, en cuanto a la energia que se necesita para recoger al material.
 		method provocarEfecto(alguien){
-			alguien.disminuirEnergia(self.cuantaEnergiaSeNecesitaParaRecolectarlo())
+			alguien.disminuirEnergia(alguien.cuantaEnergiaNecesitaParaLevantar(self))
 		}
 		
 		method generaElectricidad() = self.electricidadGenerada() > 0 //Esto esta bien? 
@@ -22,6 +22,8 @@ class Material{
 		method cantMetal() //Abstracto - Si bien es la super clase Material el metodo es abstracto se espera que lo que devuelve esta expresado en grs. 
 		
 		method nivelDeConductividad() //Abstracto		
+		
+		method esVivo() = false
 }
 
 class Lata inherits Material{
@@ -105,6 +107,8 @@ class Fleeb inherits Material{
 					}				
 					super(alguien)//Esto me hace ruido todavia. A su vez, entendemos que todo material cansa a quien lo recoge.
 				}
+				
+				override method esVivo() = true
 }			
 
 class MateriaOscura inherits Material{
@@ -123,6 +127,8 @@ class MateriaOscura inherits Material{
 			override method electricidadGenerada() = materialBase.electricidadGenerada() * 2 
 
 			override method esRadiactivo() = materialBase.esRadiactivo()
+			
+			override method esVivo() = materialBase.esVivo()
 }
 
 
@@ -310,6 +316,12 @@ class Mochila{
 			limite = unLimite
 		}	
 		
+			method cambiarCapacidad(unaCapacidad){
+				limite = unaCapacidad
+			}
+			
+			method limite() = limite
+		
 			method tieneLugar() = self.espacioDisponible() > 0
 		
 			method laMedidaDe(materiales) = materiales.size()
@@ -389,7 +401,6 @@ class Personaje{//Clase creada por comodidad para juntar el comportamiento en co
 			}
 				
 			//Dada una coleccion de objetos, y un companiero, saca de la mochila, esos objetos y los deposita en la mochila de dicho companiero. Tales objetos deben estar en la mochila del personaje.
-
 }
 
 class PersonajeCompaniero inherits Personaje{ // Seguramente a medida que avance el trabajo se cambiara el nombre a PersonajeRecolector y se sumara el comportamiento de recolectar.
@@ -418,6 +429,8 @@ class PersonajeCompaniero inherits Personaje{ // Seguramente a medida que avance
 class PersonajeRecolector inherits PersonajeCompaniero{
 	constructor(unaEnergia, unLimite) = super(new MochilaConLimite(unLimite), unaEnergia )
 	
+		method cuantaEnergiaNecesitaParaLevantar(unMaterial) = unMaterial.cuantaEnergiaSeNecesitaParaRecolectarlo()
+	
 			//Dado un material, retorna "True" en caso de que Morty pueda recolectar dicho material. Caso contrario retorna "False". 
 		method puedeRecolectar(unMaterial) = self.tieneLugarEnLamochila() && self.tieneEnergiaParaLevantar(unMaterial)
 
@@ -441,21 +454,36 @@ class PersonajeRecolector inherits PersonajeCompaniero{
 			self.error(self.nombre() + "No puede recolectar el material en este momento.")
 		}
 		
-		method nombre() //Anstracto
+		method nombre() //Abstracto
 }
 
 
 ///////////////////////////////////////////////// Rick & Morty /////////////////////////////////////////////////
 		
-object summer inherits PersonajeRecolector(2, 100){
-	override method nombre() = "Summer"
-}										
+							
 										//mochila - comapniero - energia inicial 
 object morty inherits PersonajeRecolector(3, 100){  //Se deja el comportamiento de Morty y no en PersonajeCompaniero porque todavia no hay otro que recolecte.
 	
-	//Inicialmente, Morty empieza con 100 de energia. Esto podria llegar a variar. (*1)
+		//Inicialmente, Morty empieza con 100 de energia. Esto podria llegar a variar. (*1)
  
  	override method nombre() = "Morty"
+
+	
+}
+
+object summer inherits PersonajeRecolector(2, 100){
+	
+	override method nombre() = "Summer"
+	
+	override method cuantaEnergiaNecesitaParaLevantar(unMaterial) = super(unMaterial) * 0.2
+	
+	
+}			
+
+object jerry inherits PersonajeRecolector(3,100){
+	
+	override method nombre() = "Jerry"
+	
 }
 
 
