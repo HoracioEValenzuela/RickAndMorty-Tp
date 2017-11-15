@@ -10,7 +10,7 @@ describe   " Personajes en marcha "{
 	var cable = new Cable(12, 8)
 	var materiaOscurita = new MateriaOscura(cable)
 		//Personaje no presente en el enunciado, agregado para probar comportamiento.
-	var summer = new Personaje(new MochilaConLimite(2))
+	//var summer = new Personaje(new MochilaConLimite(2))
 		
 		//Coleccion de materiales para que los Fleebs coman.
 	var cenaLigera = #{latita, cablecito, materiaOscurita}

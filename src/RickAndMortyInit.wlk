@@ -415,32 +415,47 @@ class PersonajeCompaniero inherits Personaje{ // Seguramente a medida que avance
 		}
 }
 
-
-
-
-///////////////////////////////////////////////// Rick & Morty /////////////////////////////////////////////////
-										
-										//mochila - comapniero - energia inicial 
-object morty inherits PersonajeCompaniero(new MochilaConLimite(3), 100){  //Se deja el comportamiento de Morty y no en PersonajeCompaniero porque todavia no hay otro que recolecte.
+class PersonajeRecolector inherits PersonajeCompaniero{
+	constructor(unaEnergia, unLimite) = super(new MochilaConLimite(unLimite), unaEnergia )
 	
-	//Inicialmente, Morty empieza con 100 de energia. Esto podria llegar a variar. (*1)
- 
+			//Dado un material, retorna "True" en caso de que Morty pueda recolectar dicho material. Caso contrario retorna "False". 
+		method puedeRecolectar(unMaterial) = self.tieneLugarEnLamochila() && self.tieneEnergiaParaLevantar(unMaterial)
+
 			//Dado un material, retorna "True" si Morty tiene energia para recolectar dicho material.
 		method tieneEnergiaParaLevantar(unMaterial) = energia >= unMaterial.cuantaEnergiaSeNecesitaParaRecolectarlo()
 			
 			//Dado un material, si Morty puede recogerlo, lo agrega a su mochila, caso contrario, tira un error avisando que no es posible realizar dicha accion. 
 		method recolectar(unMaterial){
 			if(! self.puedeRecolectar(unMaterial)){
-				self.error("Morty no puede recolectar el material en este momento.")
+				self.errorDeRecoleccion()
 			}
-			//Dudas sobre esta parte. De quien es la responsabilidad?
+				//Dudas sobre esta parte. De quien es la responsabilidad?
 			self.meterEnLaMochila(unMaterial)
 			unMaterial.provocarEfecto(self) //No estoy seguro de esta parte
 		}
+		
 		method tieneLugarEnLamochila() = mochila.tieneLugar()		
 				
-			//Dado un material, retorna "True" en caso de que Morty pueda recolectar dicho material. Caso contrario retorna "False". 
-		method puedeRecolectar(unMaterial) = self.tieneLugarEnLamochila() && self.tieneEnergiaParaLevantar(unMaterial)
+		
+		method errorDeRecoleccion(){
+			self.error(self.nombre() + "No puede recolectar el material en este momento.")
+		}
+		
+		method nombre() //Anstracto
+}
+
+
+///////////////////////////////////////////////// Rick & Morty /////////////////////////////////////////////////
+		
+object summer inherits PersonajeRecolector(2, 100){
+	override method nombre() = "Summer"
+}										
+										//mochila - comapniero - energia inicial 
+object morty inherits PersonajeRecolector(3, 100){  //Se deja el comportamiento de Morty y no en PersonajeCompaniero porque todavia no hay otro que recolecte.
+	
+	//Inicialmente, Morty empieza con 100 de energia. Esto podria llegar a variar. (*1)
+ 
+ 	override method nombre() = "Morty"
 }
 
 
