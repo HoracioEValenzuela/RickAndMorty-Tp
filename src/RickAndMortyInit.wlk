@@ -551,7 +551,7 @@ object rick inherits Personaje(new Mochila()){
 			method cambiarCompaniero(unCompaniero){
 				companiero = unCompaniero
 			}	
-			
+	
 				//Dado un experimento, agrega el mismo a la coleccion del personaje. No pedido, pero se agrega para hacer el programa mas escalable, si se agregan experimentos en el futuro.
 			method agregarExperimento(unExperimento){
 				experimentos.add(unExperimento)//
