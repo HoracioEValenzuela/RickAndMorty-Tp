@@ -354,7 +354,8 @@ class Mochila{
 
 class Personaje{//Clase creada por comodidad para juntar el comportamiento en comun de Rick y de Morty.
 	const mochila
-
+	var energia = 100
+	
 		constructor(unaMochila){
 			mochila = unaMochila
 			
@@ -397,35 +398,25 @@ class Personaje{//Clase creada por comodidad para juntar el comportamiento en co
 			method sacarEstos(unosMateriales){
 				mochila.sacarEstos(unosMateriales)
 			}
-				
-			//Dada una coleccion de objetos, y un companiero, saca de la mochila, esos objetos y los deposita en la mochila de dicho companiero. Tales objetos deben estar en la mochila del personaje.
+
+				//(1*) setter de la energia por si en alguna ocasion se quiere empezar con otro valor
+			method energia(unaEnergia){ 
+				energia = unaEnergia//No pedido por el enunciado
+			}	
+		
+			method energia() = energia
+		
+			method disminuirEnergia(unaCantidad){
+				energia = (energia  - unaCantidad).max(0)
+			}
+		
+			method incrementarEnergia(unaCantidad){
+				energia += unaCantidad 
+			}
 }
 
-class PersonajeCompaniero inherits Personaje{ // Seguramente a medida que avance el trabajo se cambiara el nombre a PersonajeRecolector y se sumara el comportamiento de recolectar.
-	var energia 
-	
-	constructor(unaMochila,_energia)= super(unaMochila){
-		energia = _energia
-	}
-		
-		// (1*) setter de la energia por si en alguna ocasion se quiere empezar con otro valor
-		method energia(unaEnergia){ 
-					energia = unaEnergia//No pedido por el enunciado
-		}
-		
-		method energia() = energia
-		
-		method disminuirEnergia(unaCantidad){
-			energia = (energia  - unaCantidad).max(0)
-		}
-		
-		method incrementarEnergia(unaCantidad){
-			energia += unaCantidad 
-		}
-}
-
-class PersonajeRecolector inherits PersonajeCompaniero{
-	constructor(unaEnergia, unLimite) = super(new MochilaConLimite(unLimite), unaEnergia )
+class PersonajeRecolector inherits Personaje{
+	constructor(unLimite) = super(new MochilaConLimite(unLimite))
 	
 		method cuantaEnergiaNecesitaParaLevantar(unMaterial) = unMaterial.cuantaEnergiaSeNecesitaParaRecolectarlo()
 	
@@ -446,8 +437,7 @@ class PersonajeRecolector inherits PersonajeCompaniero{
 		}
 		
 		method tieneLugarEnLamochila() = mochila.tieneLugar()		
-				
-		
+
 		method errorDeRecoleccion(){
 			self.error(self.nombre() + "No puede recolectar el material en este momento.")
 		}
@@ -460,7 +450,7 @@ class PersonajeRecolector inherits PersonajeCompaniero{
 		
 							
 										//mochila - comapniero - energia inicial 
-object morty inherits PersonajeRecolector(3, 100){  //Se deja el comportamiento de Morty y no en PersonajeCompaniero porque todavia no hay otro que recolecte.
+object morty inherits PersonajeRecolector(3){  //Se deja el comportamiento de Morty y no en PersonajeCompaniero porque todavia no hay otro que recolecte.
 	
 		//Inicialmente, Morty empieza con 100 de energia. Esto podria llegar a variar. (*1)
  
@@ -469,16 +459,14 @@ object morty inherits PersonajeRecolector(3, 100){  //Se deja el comportamiento 
 	
 }
 
-object summer inherits PersonajeRecolector(2, 100){
+object summer inherits PersonajeRecolector(2){
 	
 	override method nombre() = "Summer"
 	
 	override method cuantaEnergiaNecesitaParaLevantar(unMaterial) = super(unMaterial) * 0.2
-	
-	
 }			
 
-object jerry inherits PersonajeRecolector(3,100){
+object jerry inherits PersonajeRecolector(3){
 	
 	override method nombre() = "Jerry"
 	
@@ -488,9 +476,9 @@ object jerry inherits PersonajeRecolector(3,100){
 object rick inherits Personaje(new Mochila()){
 	//Inicialmente decimos que el companiero de Rick es Morty, pero esto puede variar en el futuro.
 	//Lo mismo decimos que los experimentos que saber hacer rick es el construoir la bateria, el circuito y el shock electrico, pero esta tmb puede cambiar.	
-							
-			const experimentos= #{construirBateria, construirCircuito, shockElectrico}
-			var companiero = morty
+		
+		const experimentos= #{construirBateria, construirCircuito, shockElectrico}
+		var companiero = morty
 			
 		
 				//Retorna el companiero del personaje. En principio, este sera Morty para Rick, pero puede cambiar en el futuro.
