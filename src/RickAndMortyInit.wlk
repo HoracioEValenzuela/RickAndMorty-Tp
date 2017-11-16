@@ -438,6 +438,8 @@ class PersonajeRecolector inherits Personaje{
 		
 		method tieneLugarEnLamochila() = mochila.tieneLugar()		
 
+		method cuantoPuedeLlevar() = mochila.capacidad()
+		
 		method errorDeRecoleccion(){
 			self.error(self.nombre() + "No puede recolectar el material en este momento.")
 		}
@@ -446,17 +448,16 @@ class PersonajeRecolector inherits Personaje{
 }
 
 
-///////////////////////////////////////////////// Rick & Morty /////////////////////////////////////////////////
+///////////////////////////////////////////////// Rick, Morty, Summer y Jerry /////////////////////////////////////////////////
 		
+//Inicialmente, decimos que todo personaje empieza con 100 de energia. Esto podria llegar a variar. (*1)
+ 
 							
 										//mochila - comapniero - energia inicial 
 object morty inherits PersonajeRecolector(3){  //Se deja el comportamiento de Morty y no en PersonajeCompaniero porque todavia no hay otro que recolecte.
 	
-		//Inicialmente, Morty empieza con 100 de energia. Esto podria llegar a variar. (*1)
- 
- 	override method nombre() = "Morty"
-
-	
+		
+ 	override method nombre() = "Morty"	
 }
 
 object summer inherits PersonajeRecolector(2){
@@ -464,12 +465,74 @@ object summer inherits PersonajeRecolector(2){
 	override method nombre() = "Summer"
 	
 	override method cuantaEnergiaNecesitaParaLevantar(unMaterial) = super(unMaterial) * 0.2
+
+	override method darObjetos(alguien){
+		super(alguien)
+		alguien.disminuirEnergia(10)
+	}
 }			
 
 object jerry inherits PersonajeRecolector(3){
+		//Dudas sobre variable preguntar.
+	var estaBuenHumor = true
+	var estaSobreexcitado = false	
+		
+		
+		method suEstadoDeAnimo() = estaBuenHumor
+			
+		method cambiarABuenHumor(){
+			estaBuenHumor = true 	 
+		}
+		
+		method cambiarAMalHumor(){
+			estaBuenHumor = false
+		}
 	
-	override method nombre() = "Jerry"
+		method estaMalHumor() = not estaBuenHumor
 	
+		method dobleDeCapacidad() = mochila.limite() * 2
+		
+		method cambiarAExcitado(){
+			estaSobreexcitado = true	
+		}
+		
+		method sobreexcitarse(){
+			self.cambiarAExcitado()
+			mochila.cambiarCapacidad(self.dobleDeCapacidad())	
+		}
+		
+		method estaSobreExcitado() = estaSobreexcitado
+		
+		method quizasPierdeTodo(){
+			if(1.randomUp(4)){
+				mochila.vaciar()
+			}
+		}
+		
+		override method recolectar(unMaterial){
+			if(self.estaSobreExcitado()){
+				self.quizasPierdeTodo()
+			}
+			if(self.suEstadoDeAnimo()){
+				super(unMaterial)
+			}
+			self.cambioDeHumorAlRecolectar(unMaterial)
+			self.cambioDeExcitacion(unMaterial)//Si jerry no esta sobreexcitado entonces afectara dicho estado la proxima vez que le toque recolectar un material.
+		}
+		
+		method cambioDeHumorAlRecolectar(unMaterial){
+			if(unMaterial.estaVivo() and self.estaMalHumor()){
+				self.cambiarABuenHumor()
+			}
+		}
+		
+		method cambioDeExcitacion(unMaterial){
+				if(unMaterial.esRadiactivo() and not self.estaSobreExcitado()){
+					self.sobreexcitarse()
+				}	
+		}
+		
+		override method nombre() = "Jerry"
 }
 
 
@@ -493,8 +556,7 @@ object rick inherits Personaje(new Mochila()){
 			method agregarExperimento(unExperimento){
 				experimentos.add(unExperimento)//
 			}
-
-							 
+				 
 			method experimentosQuePuedeRealizar() = experimentos.filter { experimento => experimento.tieneMaterialesNecesarios(self.mochila()) }
 			
 			method sePuedeRealizar(unExperimento) = unExperimento.tieneMaterialesNecesarios(self.mochila())
@@ -506,6 +568,7 @@ object rick inherits Personaje(new Mochila()){
 				self.accionesAlRealizar(unExperimento)
 				
 			}
+			
 			method accionesAlRealizar(unExperimento){
 				unExperimento.agarrarLoQueNecesita(self)//Es decir, copia los materiales que necesita de la mochila en la coleccion de materiales necesarios para el experimento
 				unExperimento.loQueProduce().provocarEfecto(self)
