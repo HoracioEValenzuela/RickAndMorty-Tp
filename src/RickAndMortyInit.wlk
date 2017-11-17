@@ -125,6 +125,67 @@ class MateriaOscura inherits Material{
 			override method esRadiactivo() = materialBase.esRadiactivo()
 }
 
+class ParasitoAlienigena inherits Material{
+	
+	const acciones 
+	
+	constructor (unasAcciones){
+		acciones = unasAcciones
+	}
+	
+	override method electricidadGenerada() = 5
+	
+	override method cantMetal()= 10 
+	
+	override method nivelDeConductividad()= 0
+	
+	override method provocarEfecto(alguien) {
+		acciones.forEach({accion => accion.sufrirAlteracion(alguien)})
+	}
+}
+
+class AccionDePersonalidad{
+	
+	method sufrirAlteracion(alguien)
+}
+
+object aligerarMochila inherits AccionDePersonalidad{
+	
+	override method sufrirAlteracion(alguien){
+		alguien.darObjetos(alguien.companiero())
+	}
+}
+object tirarObejetoAlAzar inherits AccionDePersonalidad{
+	 
+	 override method sufrirAlteracion(alguien){
+	 	alguien.sacarCualquiera()
+	 }
+}
+class AccionDeEnergia inherits AccionDePersonalidad{
+	
+	const ls = [0,1,2,3,4,5,6,7,8,9]
+	
+	
+	method porcentaje() = ls.anyOne() * ls.anyOne() 
+	 
+	override method sufrirAlteracion(alguien){
+		self.accionDeEnergiaSobre(alguien) 
+	}
+	method accionDeEnergiaSobre(alguien)
+}
+
+object incrementarEnergia inherits AccionDeEnergia{
+	
+  	override method accionDeEnergiaSobre(alguien){
+		alguien.incrementarEnergia( alguien.energia() * self.porcentaje() / 100 )
+	}
+}
+object disminuirEnergia inherits AccionDeEnergia{
+	
+	override method accionDeEnergiaSobre(alguien){
+		alguien.disminuirEnergia( alguien.energia() * self.porcentaje() / 100 )
+	}
+}
 
 ///////////////////////////////////////////////// MATERIALES COMPLEJOS /////////////////////////////////////////////////
 
