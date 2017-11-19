@@ -165,4 +165,40 @@ describe "Comportamiento de los Materiales Simples"{
 			test "Es radioactivo el superFleeb"{
 				assert.that(superFleeb.esRadiactivo())
 			}
+			
+				//MensajeTesteado: .estaVivo():
+				//TESTS DE LA TERCERA PARTE, AGREGADOS ACA PARA PROBAR QUE FUNCIONA EL METODO AGREGADO. 
+		
+			test "Esta viva la latita?"{
+				assert.notThat(latita.estaVivo())
+			}
+			
+			test "Esta viva la lata?"{
+				assert.notThat(lata.estaVivo())
+			}
+			
+			test "Esta vivo el cablecito?"{
+				assert.notThat(cablecito.estaVivo())
+			}
+			
+			test "Esta vivo el cable"{
+				assert.notThat(cable.estaVivo())
+			}
+			
+			test "Esta viva la materiaOscurita"{
+				assert.notThat(materiaOscurita.estaVivo())
+			}
+			
+			test "Esta viva la materiaOscura"{
+				assert.notThat(materiaOscura.estaVivo())
+			}
+			
+			test "Esta vivo el  miniFleeb?"{
+				assert.that(miniFleeb.estaVivo())
+			}
+			
+			test "Esta vivo el  superFleeb?"{
+				assert.that(superFleeb.estaVivo())
+			}
+			
 }

@@ -88,6 +88,14 @@ describe "Comportamiento de los Materiales Complejos"{
 				
 				test "Conduce electricidad el circuito?"{
 					assert.that(circuito.conduceElectricidad())
+				}
+				
+					//TESTS AGREGADOS POR MODIFICACION DE LA TERCERA PARTE 
+				test "Esta viva la bateria?"{
+					assert.notThat(bateria.estaVivo())
 				}	
+				
+				test "Esta vivo el circuito?"{
+					assert.notThat(circuito.estaVivo())
+				}
 }
-
