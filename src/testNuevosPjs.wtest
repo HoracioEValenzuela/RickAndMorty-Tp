@@ -1,0 +1,59 @@
+import RickAndMortyInit.*
+
+describe "Se testea el comortamiento de losnuevos personajes agregados al sistema: Jerry y Summer"{//El comportamiento de Rick y deMortyya fue testeado anteriormente.
+
+		//Materiales Simples
+	var latita = new Lata(2)
+	var lata = new Lata(20)
+	var cablecito = new Cable(1, 2)
+	var cable = new Cable(12, 4)
+	var materiaOscurita = new MateriaOscura(cable)
+	
+		//Coleccion de materiales para que los Fleebs coman.
+	var cenaLigera = #{latita, cablecito, materiaOscurita}
+	var cenaPesada = #{lata, cable}		
+			
+		//Fleeb NO radioactivo.
+	var miniFleeb = new Fleeb(0,cenaLigera)
+		//Fleeb radioactivo
+	var superFleeb = new Fleeb(16,cenaPesada)
+	
+	var materiaOscura = new MateriaOscura(miniFleeb)
+				 
+			fixture{
+				summer.recolectar(superFleeb)
+				summer.recolectar(materiaOscurita)
+				jerry.recolectar(cable)
+				jerry .recolectar(lata)
+			}
+
+				method sobreexcitarAJerryConUnMaterialRadiactivo(){
+					jerry.recolectar(materiaOscura)	
+				}					
+				
+				method prepararMochilaDeJerry(){
+					jerry.recolectar(lata)
+					jerry.recolectar(latita)
+				}
+				
+						//Mensaje Testeado: .nombre():		
+					test "Summer sabe su nombre:"{
+						assert.equals("Summer", summer.nombre())
+					}
+			
+					test "Jerry sabe su nombre:"{
+						assert.equals("Jerry", summer.nombre())
+					}
+			
+					test "La energia de Summer:"{
+						assert.equals(100, summer.energia())
+					}
+			
+					test "La energia de Jerry:"{
+						assert.equals(100, jerry.energia())
+					}
+			
+					test "Jerry pierde todo lo de la mochila:"{
+						assert.equals(100, jerry.energia())
+					}
+}

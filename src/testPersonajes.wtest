@@ -10,7 +10,7 @@ describe   " Personajes en marcha "{
 	var cable = new Cable(12, 8)
 	var materiaOscurita = new MateriaOscura(cable)
 		//Personaje no presente en el enunciado, agregado para probar comportamiento.
-	//var summer = new Personaje(new MochilaConLimite(2))
+	//var susan = new PersonajeRecolector(2, morty)//El personaje Recolector ahora toma 2 valores por constructor: Un limite para la mochila y un primer companiero.
 		
 		//Coleccion de materiales para que los Fleebs coman.
 	var cenaLigera = #{latita, cablecito, materiaOscurita}
@@ -78,5 +78,15 @@ describe   " Personajes en marcha "{
 					self.accionesCaritativas()
 					rick.realizar(construirBateria)
 					assert.equals(139.606,morty.energia())
+				}
+				
+					//ESTOS TESTS FUERON AGREGADOS DADA LAS MODIFICACIONES DE LA TERCER PARTE.
+					 
+				test "Morty sabe su nombre?"{
+					assert.equals("Morty", morty.nombre())
+				}
+				
+				test "Rick sabe su nombre?"{
+					assert.equals("Rick", rick.nombre())
 				}
 }
