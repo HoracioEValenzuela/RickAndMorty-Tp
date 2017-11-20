@@ -9,7 +9,6 @@ describe "Comportamiento de los Materiales Simples"{
 	var cable = new Cable(12, 4)
 	var materiaOscurita = new MateriaOscura(cable)
 	
-		
 		//Coleccion de materiales para que los Fleebs coman.
 	var cenaLigera = #{latita, cablecito, materiaOscurita}
 	var cenaPesada = #{lata, cable}		

@@ -21,10 +21,13 @@ describe "Se testea el comortamiento de losnuevos personajes agregados al sistem
 	var materiaOscura = new MateriaOscura(miniFleeb)
 				 
 			fixture{
-				summer.recolectar(superFleeb)
-				summer.recolectar(materiaOscurita)
+				summer.recolectar(cable)
+				summer.recolectar(lata)
+				morty.recolectar(cable)
+				morty.recolectar(lata)
 				jerry.recolectar(cable)
-				jerry .recolectar(lata)
+				jerry.recolectar(lata)
+				self.laEnergiaDeMorty() 
 			}
 
 				method sobreexcitarAJerryConUnMaterialRadiactivo(){
@@ -32,9 +35,12 @@ describe "Se testea el comortamiento de losnuevos personajes agregados al sistem
 				}					
 				
 				method prepararMochilaDeJerry(){
-					jerry.recolectar(lata)
+					jerry.recolectar(cablecito)
 					jerry.recolectar(latita)
 				}
+				
+				method laEnergiaDeMorty() = morty.energia()
+				
 				
 						//Mensaje Testeado: .nombre():		
 					test "Summer sabe su nombre:"{
@@ -42,18 +48,69 @@ describe "Se testea el comortamiento de losnuevos personajes agregados al sistem
 					}
 			
 					test "Jerry sabe su nombre:"{
-						assert.equals("Jerry", summer.nombre())
+						assert.equals("Jerry", jerry.nombre())
 					}
 			
-					test "La energia de Summer:"{
-						assert.equals(100, summer.energia())
+						//Mensaje Testeado: .energia():		
+					test "Summer consume menos energia que Morty al levantar las mismas cosas:"{//A Summer le cuesta recolectar un 20% menos que a Morty,  
+						assert.that(self.laEnergiaDeMorty() < summer.energia())
+					}
+					
+					test "La energia exacta de Summer:"{//A Summer le cuesta recolectar un 20% menos que a Morty,  
+						assert.equals(83.9616, summer.energia())
 					}
 			
-					test "La energia de Jerry:"{
-						assert.equals(100, jerry.energia())
+					test "La energia de Jerry es igual a la de Morty al levantar las mismas cosas:"{
+						assert.that(self.laEnergiaDeMorty() == jerry.energia())
 					}
-			
-					test "Jerry pierde todo lo de la mochila:"{
-						assert.equals(100, jerry.energia())
+					
+					test "La energia de Jerry"{
+						assert.equals(79.9520, jerry.energia())
+					}
+					
+					test "La mochila de Jerry"{
+						assert.equals(#{lata, cable}, jerry.mochila())
+					}
+					
+					test "La mochila de Summer"{
+						assert.equals(#{lata, cable}, summer.mochila())
+					}
+					
+					test "Summer no puede recolectar otro materia:"{//Ya tiene la mochila llena.
+						assert.throwsExceptionWithMessage("Summer no puede recolectar el material en este momento.",{summer.recolectar(superFleeb)})
+					}
+					
+					test "Summer necesita menos energia que Morty para levantar el mismo material"{
+						assert.that(morty.cuantaEnergiaNecesitaParaLevantar(lata) > summer.cuantaEnergiaNecesitaParaLevantar(lata))
+					}
+					
+					test"La energia que necesita Morty al levantar una lata:"{
+						assert.equals(20, morty.cuantaEnergiaNecesitaParaLevantar(lata))
+					}
+					
+					test "Jerry no puede recolectar otro materia:"{//Ya tiene la mochila llena.
+						jerry.recolectar(cablecito)//Para que llegue al maximo de la capacidad de su mochila.
+						assert.throwsExceptionWithMessage("Jerry no puede recolectar el material en este momento.",{jerry.recolectar(superFleeb)})
+					}
+					
+					test"La energia que necesita Summer al levantar una lata:"{
+						assert.equals(16, summer.cuantaEnergiaNecesitaParaLevantar(lata))
+					}
+					 
+					test"Al que Summer le da materiales pierde energia"{
+						morty.energia(100) //Volver a Morty a su estado primario. 
+						morty.descartarObjetos() //Para que tenga espacio en la mochila
+						summer.darObjetos(morty)
+							assert.equals(90, morty.energia())
+					}
+					
+					test "Jerry pierde todo lo de la mochila:"{//Rompe porque no entiende el randomUp
+						jerry.sobreexcitarse()
+						jerry.sobreexcitarse()
+						assert.equals(#{}, jerry.mochila())
+					}			
+					
+					test "Jerry esta de buen humor: "{
+						assert.that(jerry.estaBuenHumor())
 					}
 }

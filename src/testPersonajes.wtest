@@ -10,7 +10,7 @@ describe   " Personajes en marcha "{
 	var cable = new Cable(12, 8)
 	var materiaOscurita = new MateriaOscura(cable)
 		//Personaje no presente en el enunciado, agregado para probar comportamiento.
-	//var susan = new PersonajeRecolector(2, morty)//El personaje Recolector ahora toma 2 valores por constructor: Un limite para la mochila y un primer companiero.
+	var susan = new PersonajeRecolector(2, morty)//El personaje Recolector ahora toma 2 valores por constructor: Un limite para la mochila y un primer companiero.
 		
 		//Coleccion de materiales para que los Fleebs coman.
 	var cenaLigera = #{latita, cablecito, materiaOscurita}
@@ -51,7 +51,7 @@ describe   " Personajes en marcha "{
 				}	
 	
 				test  "Morty intenta enviar materiales a Summer"{// Summer tiene un limite de 2
-					assert.throwsExceptionWithMessage("La mochila no tiene mas espacio suficiente",{morty.darObjetos(summer)})
+					assert.throwsExceptionWithMessage("La mochila no tiene mas espacio suficiente",{morty.darObjetos(susan)})
 				}
 	
 				test "Morty entrega materiales a Rick"{

@@ -12,7 +12,7 @@ class Material{
 		
 			//Dada un "alguien", disminuye la energia del mismo, en cuanto a la energia que se necesita para recoger al material.
 		method provocarEfecto(alguien){
-			alguien.disminuirEnergia(self.cuantaEnergiaSeNecesitaParaRecolectarlo())
+			alguien.disminuirEnergia(alguien.cuantaEnergiaNecesitaParaLevantar(self))
 		}
 		
 		method generaElectricidad() = self.electricidadGenerada() > 0 //Esto esta bien? 
@@ -138,6 +138,8 @@ class ParasitoAlienigena inherits Material{
 	constructor (unasAcciones){
 		acciones = unasAcciones
 	}
+	
+	override method estaVivo() = true//Agrego esta linea por modificacion que se hizo para la segunda entrega.
 	
 	override method electricidadGenerada() = 5
 	
@@ -339,7 +341,6 @@ object shockElectrico inherits Experimento{
 		override method loQueProduce() = self
 			//No produce ningun material como el resto de los experimentos.
 		
-		
 		override method agarrarLoQueNecesita(personaje){
 			self.materialesNecesarios(personaje.mochila(), condicionDeGenerarElectricidad)
 			self.materialesNecesarios(personaje.mochila(), condicionDeConducirElectricidad)
@@ -444,6 +445,14 @@ class Personaje{//Clase creada por comodidad para juntar el comportamiento en co
 			companiero = unCompaniero
 			
 		}
+		
+				//Retorna el companiero del personaje. En principio, este sera Morty para Rick, pero puede cambiar en el futuro.
+			method companiero() = companiero
+			
+				//Dado un companiero, asigna el mismo como companiero del personaje. 
+			method cambiarCompaniero(unCompaniero){
+				companiero = unCompaniero
+			}	
 			
 				//Dado una coleccion de objetos, los guarda en la mochila. No pedido, agregado por comodidad a la hora de hacer el test.
 			method recibirObjetos(unosMateriales){
@@ -535,7 +544,6 @@ class PersonajeRecolector inherits Personaje{
 ///////////////////////////////////////////////// Rick, Morty, Summer y Jerry /////////////////////////////////////////////////
 		
 //Inicialmente, decimos que todo personaje empieza con 100 de energia. Esto podria llegar a variar. (*1)
- 
 							
 										//mochila - comapniero - energia inicial 
 object morty inherits PersonajeRecolector(3, rick){  //Se deja el comportamiento de Morty en PersonajeRecolector.
@@ -583,7 +591,7 @@ object jerry inherits PersonajeRecolector(3, morty){
 			}
 		
 			method quizasPierdeTodo(){
-				if(1.randomUp(4)){
+				if(1.randomUp(4) == 4){
 					self.descartarObjetos()				
 				}
 			}
@@ -633,14 +641,6 @@ object rick inherits Personaje(new Mochila(), morty){
 	//Lo mismo decimos que los experimentos que saber hacer rick es el construoir la bateria, el circuito y el shock electrico, pero esta tmb puede cambiar.	
 		
 		const experimentos= #{construirBateria, construirCircuito, shockElectrico}
-		
-				//Retorna el companiero del personaje. En principio, este sera Morty para Rick, pero puede cambiar en el futuro.
-			method companiero() = companiero
-		
-				//Dado un companiero, asigna el mismo como companiero del personaje. 
-			method cambiarCompaniero(unCompaniero){
-				companiero = unCompaniero
-			}	
 	
 				//Dado un experimento, agrega el mismo a la coleccion del personaje. No pedido, pero se agrega para hacer el programa mas escalable, si se agregan experimentos en el futuro.
 			method agregarExperimento(unExperimento){
