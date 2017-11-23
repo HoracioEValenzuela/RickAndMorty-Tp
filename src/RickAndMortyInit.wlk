@@ -566,7 +566,8 @@ object summer inherits PersonajeRecolector(2, rick){
 object jerry inherits PersonajeRecolector(3, morty){
 		//Dudas sobre variable preguntar.
 	var loVioARick = false
-						
+	//Esto ya no sirve: const suerteDeJerry = new Aleatorio([1,2,3,4])
+							
 			method estaBuenHumor() = not loVioARick and not self.suCompanieroEsRick()
 			
 			method estaMalHumor() = not self.estaBuenHumor()
@@ -578,11 +579,11 @@ object jerry inherits PersonajeRecolector(3, morty){
 			method tieneLaMochilaVacia() = mochila.estaVacia()
 			
 			method ponerseDeBuenHumor(){
-				loVioARick = true 	 
+				loVioARick = false
 			}
 		
 			method ponerseDeMalHumor(){
-				loVioARick = false
+				loVioARick = true
 			}
 		
 			method sobreexcitarse(){
@@ -591,10 +592,12 @@ object jerry inherits PersonajeRecolector(3, morty){
 			}
 		
 			method quizasPierdeTodo(){
-				if(1.randomUp(4) == 4){
+				if(self.esUnaPosibilidad()){//Es hasta el 4 inclusivo?
 					self.descartarObjetos()				
 				}
 			}
+			
+			method esUnaPosibilidad() = 1.randomUpTo(4) == 2 //O deberia decir 5?
 			
 			method cambioDeHumorAlRecolectar(unMaterial){
 				if(unMaterial.estaVivo() and !self.estaBuenHumor()){
@@ -620,7 +623,8 @@ object jerry inherits PersonajeRecolector(3, morty){
 			
 			override method recolectar(unMaterial){	
 				if(self.estaMalHumor()){//Esa parte del enunciado se me hace confusa: Jerry se niega a levantar el material a recolectar? 
-					self.determinarSiPuedeLevantar()//Entiendo por el enunciado de que si Jerry esta de mal humor solo
+					self.determinarSiPuedeLevantar()//Entiendo por el enunciado de que si Jerry esta de mal humor solo puede levantar un material. Es decir, si tiene la mochila vacia, puede levantar ese material que se le pide recolecte.
+													// sino, rompe.
 				}
 				super(unMaterial)
 				self.cambioDeHumorAlRecolectar(unMaterial)//Esto iria aca o al comienzo? Me cuesta ver la posicion de la instruccion en el algoritmo.
@@ -656,7 +660,6 @@ object rick inherits Personaje(new Mochila(), morty){
 					self.error("Rick no puede hacer el experimento en este instante")
 				}
 				self.accionesAlRealizar(unExperimento)
-				
 			}
 			
 			method accionesAlRealizar(unExperimento){
@@ -669,6 +672,27 @@ object rick inherits Personaje(new Mochila(), morty){
 				mochila.sacarEstos(unExperimento.materialesNecesarios())
 				mochila.agregar(unExperimento.loQueProduce())//Preguntar si se puede cambiar esto, sino se agregaria un shockElectrico (experimento) a la lista de materiales y como que no es la idea. 
 			}
-			
+
 			override method nombre() = "Rick"
 }
+
+/*
+Esto ya no sirve
+class Aleatorio{
+	const posibilidades
+		
+		constructor(unasPosibilidades){
+			posibilidades = unasPosibilidades
+		}
+		
+		method unNumeroEntreLasPosibilidades() = return posibilidades.anyOne()
+
+		method random(alguien) = alguien.energia()//Calculo sobre esto <-
+
+		method elMayor() = posibilidades.max()
+		
+		method unaDeTantas() = self.unNumeroEntreLasPosibilidades() == self.elMayor()
+}
+*/
+
+

@@ -108,7 +108,7 @@ describe "Se testea el comortamiento de losnuevos personajes agregados al sistem
 						jerry.sobreexcitarse()
 						jerry.sobreexcitarse()
 						assert.equals(#{}, jerry.mochila())
-					}			
+	 				}			
 					
 					test "Jerry esta de buen humor: "{
 						assert.that(jerry.estaBuenHumor())
