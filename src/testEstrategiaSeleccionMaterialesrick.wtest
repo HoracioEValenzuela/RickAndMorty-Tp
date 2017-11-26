@@ -1,0 +1,57 @@
+import RickAndMortyInit.*
+
+describe " Experimentos Con Personajes " {
+	
+	var latita = new Lata(2)
+	var superLata = new Lata(20)
+	var cablecito = new Cable(1, 5)
+	var cable = new Cable(12, 8)
+	var superCable = new Cable(1200, 900)
+	var materiaOscurita = new MateriaOscura(cable)
+		
+		//Coleccion de materiales para que los Fleebs coman.
+	var cenaLigera = #{latita, cablecito, materiaOscurita}
+	var cenaPesada = #{superLata, cable}
+			
+		//Fleeb NO radioactivo
+	var miniFleeb = new Fleeb(0,cenaLigera)
+		//Fleeb radioactivo
+	var superFleeb = new Fleeb(16,cenaPesada + #{miniFleeb})
+	
+	
+		fixture{	
+			morty.energia(1000000)//Para asegurarse que Morty pueda recolectar todo. Ok, quizas exagere...
+			morty.recolectar(superFleeb)
+			morty.recolectar(superLata)
+			morty.recolectar(superCable)	
+			morty.darObjetos(rick)
+			morty.energia(100)
+		}
+			
+			
+				
+
+			test "obtenes materiales para construir bateria AlAzar"{
+				construirBateria.agarrarLoQueNecesita(rick)
+				assert.equals(superFleeb, construirBateria.materialesNecesarios())
+			}
+			
+			test "obtenes materiales para construir bateria con MenorMetal"{
+				construirBateria.setEstrategiaDeSeleccion(new MenorMetal())
+				construirBateria.agarrarLoQueNecesita(rick)
+				assert.equals(superFleeb, construirBateria.materialesNecesarios())
+			}
+			
+			test "obtenes materiales para construir bateria con MayorGenerador"{
+				construirBateria.setEstrategiaDeSeleccion(new MayorGenerador())
+				construirBateria.agarrarLoQueNecesita(rick)
+				assert.equals(superFleeb, construirBateria.materialesNecesarios())
+			} 
+			
+			test "obtenes materiales para construir bateria estrategia Ecologica"{
+				construirBateria.setEstrategiaDeSeleccion(new Ecologico())
+				construirBateria.agarrarLoQueNecesita(rick)
+				assert.equals(superFleeb, construirBateria.materialesNecesarios())
+			} 
+			
+}	 
