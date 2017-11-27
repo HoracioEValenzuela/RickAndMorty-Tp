@@ -271,6 +271,8 @@ class Circuito inherits MaterialCompuesto{
 
 class Experimento{
 	const materialesNecesarios = #{}
+	var estrategiaSeleccionMateriales = new AlAzar()
+	
 	
 			//Retorna la coleccion de materiales que necesita un eperimento para ser realizado.
 		method materialesNecesarios() = materialesNecesarios
@@ -706,6 +708,7 @@ object rick inherits Personaje(new Mochila(), morty){
 			override method nombre() = "Rick"
 }
 
+
 ////////// INTELIGENCIA ARTIFICIAL ///////
 
 class Estrategia {
@@ -773,6 +776,9 @@ class Ecologico inherits Estrategia{
 	}
 	
 }
+
+
+
 
 
 
