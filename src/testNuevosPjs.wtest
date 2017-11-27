@@ -21,14 +21,25 @@ describe "Se testea el comortamiento de losnuevos personajes agregados al sistem
 	var materiaOscura = new MateriaOscura(miniFleeb)
 				 
 			fixture{
-				summer.recolectar(cable)
-				summer.recolectar(lata)
-				morty.recolectar(cable)
-				morty.recolectar(lata)
-				jerry.recolectar(cable)
-				jerry.recolectar(lata)
-				self.laEnergiaDeMorty() 
+				self.summerRecolecta()
+				self.mortyRecolecta()
+				self.jerryRecolecta()
+				
 			}
+				method summerRecolecta(){
+					summer.recolectar(cable)
+					summer.recolectar(lata)	
+				}
+				
+				method mortyRecolecta(){
+					morty.recolectar(cable)
+					morty.recolectar(lata)	
+				}
+				
+				method jerryRecolecta(){
+					jerry.recolectar(cable)
+					jerry.recolectar(lata)	
+				}
 
 				method sobreexcitarAJerryConUnMaterialRadiactivo(){
 					jerry.recolectar(materiaOscura)	
@@ -37,6 +48,12 @@ describe "Se testea el comortamiento de losnuevos personajes agregados al sistem
 				method prepararMochilaDeJerry(){
 					jerry.recolectar(cablecito)
 					jerry.recolectar(latita)
+				}
+					
+					//Quizas esto no sea buena practica, pero no queria escribir 4 o mas veces jerry.sobreexcitarse(), preguntar.
+				method asegurarseQueJerrySeSobreexcito(){
+					var veces = [1,2,3,4,5,6,7,8]
+					veces.forEach{ iteraciones => jerry.sobreexcitarse() }//Uso el foreach como un repeat.
 				}
 				
 				method laEnergiaDeMorty() = morty.energia()
@@ -105,8 +122,8 @@ describe "Se testea el comortamiento de losnuevos personajes agregados al sistem
 					}
 					
 					test "Jerry pierde todo lo de la mochila:"{//Rompe porque no entiende el randomUp
-						jerry.sobreexcitarse()
-						jerry.sobreexcitarse()
+						self.asegurarseQueJerrySeSobreexcito()
+						self.asegurarseQueJerrySeSobreexcito()//Exagero en las iteraciones y en poner 2 veces el metodo, pero las veces que lo probe, Jerry estaba de racha y no perdia nada.
 						assert.equals(#{}, jerry.mochila())
 	 				}			
 					
