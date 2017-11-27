@@ -52,6 +52,5 @@ describe " Experimentos Con Personajes " {
 				construirBateria.setEstrategiaDeSeleccion(new Ecologico())
 				construirBateria.agarrarLoQueNecesita(rick)
 				assert.equals(superFleeb, construirBateria.materialesNecesarios())
-			} 
-			
+			} 		
 }	 

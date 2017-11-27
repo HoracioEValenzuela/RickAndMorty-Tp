@@ -290,10 +290,12 @@ class Experimento{
 		
 		 /* 
 		  * Ver si se puede hacer la modificacion de:  
+		  * 
 		  * 	materialesNecesarios(unaMochila, condicion1, condicion2){
 		  * 		materialesNecesarios.add(unaMochila.find(condicion1))
 		  * 		materialesNecesarios.add(unaMochila.find(condicion2)) 
 		  * 	}
+		  * 
 		  * Asi solo lo modificamos en construirCircuito.
 		  */ 
 		
@@ -512,6 +514,7 @@ class Personaje{//Clase creada por comodidad para juntar el comportamiento en co
 			method sacar(unMaterial){
 				mochila.sacar(unMaterial)
 			}
+					//?
 			method sacarCualquiera(){
 				mochila.remove({  })
 			}
@@ -544,6 +547,7 @@ class Personaje{//Clase creada por comodidad para juntar el comportamiento en co
 			 
 			method nombre() = "Personaje Anonimo" //Abstracto - Agregado para poder instanciar otro personaje para probar desde el test. Obviamente no es lo que se quiere, que haya ersonaje instanciados de PersonajeRecolectores, por eso en principio el metodo estaba abstracto.
 }
+
 
 class PersonajeRecolector inherits Personaje{
 	constructor(unLimite, unCompaniero) = super(new MochilaConLimite(unLimite), unCompaniero)
@@ -578,6 +582,52 @@ class PersonajeRecolector inherits Personaje{
 		}
 }
 
+/*
+Estaria bueno agregar estas clases por escalabilidad:
+*  
+class PersonajeRecolectorPromedio inherits PersonajeRecolector{
+	constructor() = super(3, rick)//Entonces decimos que todo PRP tienea rick como companiero
+	constructor(unCompaniero) = super(3, unCompaniero)// salvo que necesitemos que sea otro.
+}
+
+class PersonajeCreador inherits Personaje{
+	const experimentos
+		
+		constructor(unosExperimentos, unCompaniero) = super(new Mochila(), unCompaniero){
+			experimentos = unosExperimentos
+		}
+		
+			method experimentos() = experimentos
+			
+			method agregarExperimento(unExperimento){
+				experimentos.add(unExperimento)
+			} 
+			
+			method agregarExperimentos(unosExperimentos){
+				experimentos.addAll(unosExperimentos)
+			} 
+			
+			method sacarExperimento(unExperimento){
+				experimentos.remove(unExperimento)
+			}
+			
+			method sacarExperimentos(unosExperimentos){
+				experimentos.removeAll(unosExperimentos)
+			}
+
+			method sePuedeRealizar(unExperimento) //Abstracto
+			
+			method realizar(unExperimento) //Abstracto
+}
+
+class PersonajeCreadorPromedio inherits PersonajeCreador{ //Llegado el caso, eliminar la repeticion de codigo con una clase ExperimentosConocidos o similar.
+	constructor() = super(#{construirBateria, construirCircuito, shockElectrico}, morty)
+	
+	constructor(unCompaniero) = super(#{construirBateria, construirCircuito, shockElectrico}, unCompaniero)
+}
+ 	
+*/
+
 
 ///////////////////////////////////////////////// Rick, Morty, Summer y Jerry /////////////////////////////////////////////////
 		
@@ -601,9 +651,11 @@ object summer inherits PersonajeRecolector(2, rick){
 	}
 }			
 
-object jerry inherits PersonajeRecolector(3, morty){
+object jerry inherits PersonajeRecolector(3, morty){ //Dado que Jerry actua igual que Morty, ambos estan instanciados a partir de la misma clase. Quizas sea mas prolijo hacer una clase de  Morty, en vez de un object, para que Jerry pueda heredar de el. 
 	var estaDeMalHumorPorQueloVioARick = false
-								
+								//Agrego estemetodo xq hay dosformas que los pjs se "conozcan". Que sean companieros o que se den objetos
+								//Uno quisiera que cualquier pj puediera dar y recibir  objetos de cualquier personaje.
+								// 
 			method estaBuenHumor() = not estaDeMalHumorPorQueloVioARick and not self.suCompanieroEsRick()
 			
 			method estaMalHumor() = not self.estaBuenHumor()
@@ -679,15 +731,9 @@ object jerry inherits PersonajeRecolector(3, morty){
 
 object rick inherits Personaje(new Mochila(), morty){
 	//Inicialmente decimos que el companiero de Rick es Morty, pero esto puede variar en el futuro.
-	//Lo mismo decimos que los experimentos que saber hacer rick es el construoir la bateria, el circuito y el shock electrico, pero esta tmb puede cambiar.	
-		
-		const experimentos= #{construirBateria, construirCircuito, shockElectrico}
+	//Lo mismo decimos que los experimentos que saber hacer rick es el construoir la bateria, el circuito y el shock electrico, pero esta tmb puede cambiar.		
+	const experimentos = #{construirBateria, construirCircuito, shockElectrico}
 	
-				//Dado un experimento, agrega el mismo a la coleccion del personaje. No pedido, pero se agrega para hacer el programa mas escalable, si se agregan experimentos en el futuro.
-			method agregarExperimento(unExperimento){
-				experimentos.add(unExperimento)//
-			}
-				 
 			method experimentosQuePuedeRealizar() = experimentos.filter { experimento => experimento.tieneMaterialesNecesarios(self.mochila()) }
 			
 			method sePuedeRealizar(unExperimento) = unExperimento.tieneMaterialesNecesarios(self.mochila())
