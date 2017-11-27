@@ -273,7 +273,9 @@ class Experimento{
 	const materialesNecesarios = #{}
 	var estrategiaSeleccionMateriales = new AlAzar()
 	
-	
+
+		method estrategia() = 	estrategiaSeleccionMateriales 
+		
 			//Retorna la coleccion de materiales que necesita un eperimento para ser realizado.
 		method materialesNecesarios() = materialesNecesarios
 	
