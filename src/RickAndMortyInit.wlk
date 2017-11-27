@@ -276,6 +276,10 @@ class Experimento{
 
 		method estrategia() = 	estrategiaSeleccionMateriales 
 		
+			//En el tests de estrategias se usa ese metodo, pero no estaba en este archivo. Ver si quedo algo util en el otro .wlk!!
+		method setEstrategiaDeSeleccion(unaEstrategia){
+			estrategiaSeleccionMateriales = unaEstrategia
+		}
 			//Retorna la coleccion de materiales que necesita un eperimento para ser realizado.
 		method materialesNecesarios() = materialesNecesarios
 	
