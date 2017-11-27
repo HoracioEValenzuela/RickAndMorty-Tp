@@ -131,15 +131,18 @@ class MateriaOscura inherits Material{
 			//Se considera que la materia oscura no esta viva, independientemente de que su material base lo este o no.
 }
 
+
+
+////////////////////////////////////////////////Parasitos Alienigenas//////////////////////////////////////////////////////////////
 class ParasitoAlienigena inherits Material{
 	
-	const acciones 
+	const acciones = #{}
 	
-	constructor (unasAcciones){
-		acciones = unasAcciones
+	method agregarAccion(accion){
+		acciones.add(accion)
 	}
 	
-	override method estaVivo() = true//Agrego esta linea por modificacion que se hizo para la segunda entrega.
+	override method estaVivo() = true
 	
 	override method electricidadGenerada() = 5
 	
@@ -148,51 +151,72 @@ class ParasitoAlienigena inherits Material{
 	override method nivelDeConductividad()= 0
 	
 	override method provocarEfecto(alguien) {
-		acciones.forEach({accion => accion.sufrirAlteracion(alguien)})
+		acciones.forEach({accion => accion.provocarAlteracion(alguien)})
 	}
 }
 
 class AccionDePersonalidad{
 	
-	method sufrirAlteracion(alguien)
+	method provocarAlteracion(alguien)
+	
 }
 
-object aligerarMochila inherits AccionDePersonalidad{
+class AccionesEnMochila inherits AccionDePersonalidad{
 	
-	override method sufrirAlteracion(alguien){
+	override method provocarAlteracion(alguien){
+		alguien.sacar(self)
+		self.accionEnLaMochila(alguien)
+		alguien.agregarEsteObjeto(self)
+	}
+	method accionEnLaMochila(alguien)
+}
+
+object entregarObjetos inherits AccionesEnMochila{
+	override method accionEnLaMochila(alguien){
 		alguien.darObjetos(alguien.companiero())
 	}
 }
-object tirarObejetoAlAzar inherits AccionDePersonalidad{
+
+object tirarObejetoAlAzar inherits AccionesEnMochila{
 	 
-	 override method sufrirAlteracion(alguien){
+	 override method accionEnLaMochila(alguien){
 	 	alguien.sacarCualquiera()
 	 }
 }
+
 class AccionDeEnergia inherits AccionDePersonalidad{
 	
-	const ls = [0,1,2,3,4,5,6,7,8,9]
-	
-	
-	method porcentaje() = ls.anyOne() * ls.anyOne() 
-	 
-	override method sufrirAlteracion(alguien){
-		self.accionDeEnergiaSobre(alguien) 
+	const porcentaje 
+		constructor (_porcentaje){
+			porcentaje = _porcentaje
 	}
-	method accionDeEnergiaSobre(alguien)
 }
 
-object incrementarEnergia inherits AccionDeEnergia{
+class IncrementarEnergia inherits AccionDeEnergia{
 	
-  	override method accionDeEnergiaSobre(alguien){
-		alguien.incrementarEnergia( alguien.energia() * self.porcentaje() / 100 )
+  	  override method provocarAlteracion(alguien){
+  		
+			alguien.incrementarEnergia( alguien.energia() * porcentaje / 100 )
 	}
 }
-object disminuirEnergia inherits AccionDeEnergia{
+
+class DisminuirEnergia inherits AccionDeEnergia{
 	
-	override method accionDeEnergiaSobre(alguien){
-		alguien.disminuirEnergia( alguien.energia() * self.porcentaje() / 100 )
+	 override method provocarAlteracion(alguien){
+		alguien.disminuirEnergia( alguien.energia() * porcentaje / 100 )
 	}
+}
+
+class AccionDeRecolectar inherits AccionDePersonalidad {
+	const objeto 
+		constructor (_unObjeto){
+			objeto = _unObjeto
+		}
+			override method provocarAlteracion(alguien){
+				alguien.recolectar(objeto)//El comportamiento de que si puede o no recolectar esta en personajeRecolector.
+			}
+	
+	
 }
 
 ///////////////////////////////////////////////// MATERIALES COMPLEJOS /////////////////////////////////////////////////
@@ -379,7 +403,7 @@ class Mochila{
 		
 		method cuantosObjetosTiene() = objetos.size()
 		
-		method objetos() = objetos		
+		method objetos() = objetos	
 }
 
  class MochilaConLimite inherits Mochila{
@@ -445,7 +469,7 @@ class Personaje{//Clase creada por comodidad para juntar el comportamiento en co
 			companiero = unCompaniero
 			
 		}
-		
+			
 				//Retorna el companiero del personaje. En principio, este sera Morty para Rick, pero puede cambiar en el futuro.
 			method companiero() = companiero
 			
@@ -480,7 +504,10 @@ class Personaje{//Clase creada por comodidad para juntar el comportamiento en co
 			method sacar(unMaterial){
 				mochila.sacar(unMaterial)
 			}
-		
+			method sacarCualquiera(){
+				mochila.remove({  })
+			}
+			
 				//Vacia totalmente la mochila del personaje.
 			method descartarObjetos(){
 				mochila.vaciar()
@@ -529,6 +556,9 @@ class PersonajeRecolector inherits Personaje{
 				//Dudas sobre esta parte. De quien es la responsabilidad?
 			self.meterEnLaMochila(unMaterial)
 			unMaterial.provocarEfecto(self) //No estoy seguro de esta parte
+		}
+		method agregarEsteObjeto(objeto){
+			mochila.agregar(objeto)
 		}
 		
 		method tieneLugarEnLamochila() = mochila.tieneLugar()		
