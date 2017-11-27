@@ -596,11 +596,9 @@ object summer inherits PersonajeRecolector(2, rick){
 }			
 
 object jerry inherits PersonajeRecolector(3, morty){
-		//Dudas sobre variable preguntar.
-	var loVioARick = false
-	//Esto ya no sirve: const suerteDeJerry = new Aleatorio([1,2,3,4])
-							
-			method estaBuenHumor() = not loVioARick and not self.suCompanieroEsRick()
+	var estaDeMalHumorPorQueloVioARick = false
+								
+			method estaBuenHumor() = not estaDeMalHumorPorQueloVioARick and not self.suCompanieroEsRick()
 			
 			method estaMalHumor() = not self.estaBuenHumor()
 			
@@ -611,28 +609,28 @@ object jerry inherits PersonajeRecolector(3, morty){
 			method tieneLaMochilaVacia() = mochila.estaVacia()
 			
 			method ponerseDeBuenHumor(){
-				loVioARick = false
+				estaDeMalHumorPorQueloVioARick = false
 			}
 		
 			method ponerseDeMalHumor(){
-				loVioARick = true
+				estaDeMalHumorPorQueloVioARick = true
 			}
 		
 			method sobreexcitarse(){
 				self.quizasPierdeTodo()
-				mochila.cambiarCapacidad(self.dobleDeCapacidad())	
+				mochila.cambiarCapacidad(self.dobleDeCapacidad())//Nada indica que Jerry vuelve a perder la capacidad de la mochila, salvo que se ponga de mal humor.	
 			}
 		
 			method quizasPierdeTodo(){
-				if(self.esUnaPosibilidad()){//Es hasta el 4 inclusivo?
+				if(self.esUnaPosibilidad()){//Es hasta el 4 inclusive?
 					self.descartarObjetos()				
 				}
 			}
-			
-			method esUnaPosibilidad() = 1.randomUpTo(4) == 2 //O deberia decir 5?
-			
+				//Minimizando el calculo de probabilidades, hay 1 de 4 posibilidades de que Jerry pierda el contenido de la mochila pero...
+			method esUnaPosibilidad() = 1.randomUpTo(4) == 2 //Elegi el 2 como podria haber sido cualquier numero dentro del rango. Tecnicamente, hay 25% que el randomUpTo devuelva cualquiera de ellos... 
+															//En el caso de ...(4), deberia decir 4 o 5? Al probarlo desde el repl 10/10 veces me daba "x" numero que oscilaba entre 0 y 3. 		
 			method cambioDeHumorAlRecolectar(unMaterial){
-				if(unMaterial.estaVivo() and !self.estaBuenHumor()){
+				if(unMaterial.estaVivo() and !self.estaBuenHumor()){//Entiendo que si el companiero de Jerry es Rick, este esta de mal humor. El levantar un material vivo, modifica el hecho de que este pero si su companiero es Rick, el metodo estaDeBuenHumor() va a dar falso, independientemente de que haya recogido un material vivo. 
 					self.ponerseDeBuenHumor()
 				}
 			}
@@ -648,6 +646,8 @@ object jerry inherits PersonajeRecolector(3, morty){
 					self.errorDeRecoleccion()
 				}
 			}
+
+			method aQuienLeDaObjetosEsRick(alguien) = alguien.nombre() == "rick"			
 			
 			override method nombre() = "Jerry"
 			
@@ -655,7 +655,7 @@ object jerry inherits PersonajeRecolector(3, morty){
 			
 			override method recolectar(unMaterial){	
 				if(self.estaMalHumor()){//Esa parte del enunciado se me hace confusa: Jerry se niega a levantar el material a recolectar? 
-					self.determinarSiPuedeLevantar()//Entiendo por el enunciado de que si Jerry esta de mal humor solo puede levantar un material. Es decir, si tiene la mochila vacia, puede levantar ese material que se le pide recolecte.
+					self.determinarSiPuedeLevantar()//Entiendo por el enunciado de que si Jerry esta de mal humor solo puede levantar un material. Es decir, si tiene la mochila vacia, puede levantar ese material que se le pide que recolecte.
 													// sino, rompe.
 				}
 				super(unMaterial)
@@ -664,13 +664,12 @@ object jerry inherits PersonajeRecolector(3, morty){
 			}
 			
 			override  method darObjetos(alguien){
-				if(alguien.nombre() == "rick"){//Dada la implementacion, hay 2 formas de que los personajes se vean: Ya sea que sean companieros o bien, que a un personaje se le envie el mensaje de darObjetos(_pj), puediendo ser "_p" el companiero del primero o no. 
+				if(self.aQuienLeDaObjetosEsRick(alguien)){//Dada la implementacion, hay 2 formas de que los personajes se vean: Ya sea que sean companieros o bien, que a un personaje se le envie el mensaje de darObjetos(otroPj), puediendo ser "otroPj" el companiero del primero o no. 
 					self.ponerseDeMalHumor()
 				}
 				super(alguien)
 			}
 }
-
 
 object rick inherits Personaje(new Mochila(), morty){
 	//Inicialmente decimos que el companiero de Rick es Morty, pero esto puede variar en el futuro.
