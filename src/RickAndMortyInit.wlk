@@ -706,23 +706,75 @@ object rick inherits Personaje(new Mochila(), morty){
 			override method nombre() = "Rick"
 }
 
-/*
-Esto ya no sirve
-class Aleatorio{
-	const posibilidades
-		
-		constructor(unasPosibilidades){
-			posibilidades = unasPosibilidades
-		}
-		
-		method unNumeroEntreLasPosibilidades() = return posibilidades.anyOne()
+////////// INTELIGENCIA ARTIFICIAL ///////
 
-		method random(alguien) = alguien.energia()//Calculo sobre esto <-
+class Estrategia {
+	
+	method seleccion(condicion)
 
-		method elMayor() = posibilidades.max()
-		
-		method unaDeTantas() = self.unNumeroEntreLasPosibilidades() == self.elMayor()
 }
-*/
+
+
+class AlAzar inherits Estrategia {
+	
+	override method seleccion(condicion){
+		if(rick.mochila().any({condicion})){
+			return rick.mochila().find({condicion})
+			} else {
+			return "No hay material en la mochila que cumpla la condicion"
+			}
+	}
+}
+
+class MenorMetal inherits Estrategia {
+	
+	override method seleccion(condicion){
+		if(rick.mochila().any({condicion})){
+			return rick.mochila().filter({condicion}).min({material => material.cantMetal()})			
+				} else {
+			return "No hay material en la mochila que cumpla la condicion"
+			}
+	}
+
+			method menorCantidadDeMetal() = rick.mochila().min({material => material.cantMetal()}) 
+	
+}
+
+class MayorGenerador inherits Estrategia{
+	
+	override method seleccion(condicion){
+		if(rick.mochila().any({condicion})){
+			return rick.mochila().filter({condicion}).max({materiales => materiales.electricidadGenerada()})					
+				} else {
+			return "No hay material en la mochila que cumpla la condicion"
+			}
+	}
+	
+	method mayorCantidadDeEnergia() = rick.mochila().max({materiales => materiales.electricidadGenerada()})
+}
+
+
+class Ecologico inherits Estrategia{
+	
+	override method seleccion(condicion){
+		if(rick.mochila().any({condicion})){
+			return rick.mochila().filter({condicion}).find({self.materialVivoORadioactivo()})
+			} else {
+			return "No hay material en la mochila que cumpla la condicion"
+			}
+	}
+	
+	method materialVivoORadioactivo(){
+		if(rick.mochila().any({material => material.estaVivo()})){
+			return	{material => material.estaVivo()}
+		} else  {
+			return {material => material.esRadioactivo()}
+		}
+	}
+	
+}
+
+
+
 
 
