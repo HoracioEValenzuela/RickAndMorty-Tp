@@ -161,23 +161,21 @@ class AccionDePersonalidad{
 	
 }
 
-class AccionesEnMochila inherits AccionDePersonalidad{
+class AccionEnMochila inherits AccionDePersonalidad{
 	
 	override method provocarAlteracion(alguien){
-		alguien.sacar(self)
 		self.accionEnLaMochila(alguien)
-		alguien.agregarEsteObjeto(self)
 	}
 	method accionEnLaMochila(alguien)
 }
 
-object entregarObjetos inherits AccionesEnMochila{
+object entregarObjetos inherits AccionEnMochila{
 	override method accionEnLaMochila(alguien){
 		alguien.darObjetos(alguien.companiero())
 	}
 }
 
-object tirarObejetoAlAzar inherits AccionesEnMochila{
+object tirarObejetoAlAzar inherits AccionEnMochila{
 	 
 	 override method accionEnLaMochila(alguien){
 	 	alguien.sacarCualquiera()
@@ -185,25 +183,28 @@ object tirarObejetoAlAzar inherits AccionesEnMochila{
 }
 
 class AccionDeEnergia inherits AccionDePersonalidad{
-	
+
 	const porcentaje 
+	const cuentaDePorcentaje = {alguien=> alguien.energia() * porcentaje / 100}
 		constructor (_porcentaje){
 			porcentaje = _porcentaje
-	}
-}
+			
+			}
 
+
+}
 class IncrementarEnergia inherits AccionDeEnergia{
 	
   	  override method provocarAlteracion(alguien){
   		
-			alguien.incrementarEnergia( alguien.energia() * porcentaje / 100 )
+			alguien.incrementarEnergia( cuentaDePorcentaje.apply(alguien) )
 	}
 }
 
 class DisminuirEnergia inherits AccionDeEnergia{
 	
 	 override method provocarAlteracion(alguien){
-		alguien.disminuirEnergia( alguien.energia() * porcentaje / 100 )
+		alguien.disminuirEnergia( cuentaDePorcentaje.apply(alguien) )
 	}
 }
 
@@ -566,8 +567,8 @@ class PersonajeRecolector inherits Personaje{
 				self.errorDeRecoleccion()
 			}
 				//Dudas sobre esta parte. De quien es la responsabilidad?
-			self.meterEnLaMochila(unMaterial)
 			unMaterial.provocarEfecto(self) //No estoy seguro de esta parte
+			self.meterEnLaMochila(unMaterial)
 		}
 		method agregarEsteObjeto(objeto){
 			mochila.agregar(objeto)

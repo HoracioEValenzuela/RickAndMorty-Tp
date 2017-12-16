@@ -1,0 +1,52 @@
+import RickAndMortyInit.* 
+
+describe "parasitos alienigenas"{
+	var latita = new Lata(2)
+	var superLata = new Lata(20)
+	var cablecito = new Cable(1, 5)
+	var cable = new Cable(12, 8)
+	var superCable = new Cable(1200, 900)
+	var materiaOscurita = new MateriaOscura(cable)
+	
+	//------------------------Parasitos-------------------------
+	const borko = new ParasitoAlienigena()
+	const visco = new ParasitoAlienigena()
+	
+	//------------------------acciones----------------------------	
+	
+	fixture{
+		
+		morty.recolectar(superLata)
+		morty.recolectar(cable)
+		
+		borko.agregarAccion(entregarObjetos)
+		borko.agregarAccion(new IncrementarEnergia(10))
+		visco.agregarAccion(new AccionDeRecolectar(latita))
+	}
+	
+
+ 
+	test "energia morty" {
+	assert.equals(79.90400,morty.energia())
+
+	}
+	test "nergia de morty mas el 10% "{//borko le subio la energia
+		morty.recolectar(borko)
+		assert.equals(87.8944)
+	}
+	test"morty solo se queda con borko"{
+		morty.recolectar(borko)
+		assert.equals(#{borko},morty.mochila())
+	}
+	test " se le suma la latita a morty en su mochila "{
+	//  error controlado en la mochila al querer introducir a la latita por accion de visco, 
+	//  ya que con visco serian 3 materiales y morty tiene ese limite
+		
+		assert.throwsException({morty.recolectar(visco)})
+	}
+	test " morty recolecta a ambos parasitos"{
+		morty.recolectar(borko)
+		morty.recolectar(visco)
+		assert.equals(#{borko,visco,latita},morty.mochila())
+	}
+}
