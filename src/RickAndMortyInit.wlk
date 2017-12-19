@@ -648,7 +648,6 @@ class PersonajeCreadorPromedio inherits PersonajeCreador{ //Llegado el caso, eli
  	
 */
 
-
 ///////////////////////////////////////////////// Rick, Morty, Summer y Jerry /////////////////////////////////////////////////
 		
 //Inicialmente, decimos que todo personaje empieza con 100 de energia. Esto podria llegar a variar. (*1)
@@ -716,7 +715,7 @@ object jerry inherits PersonajeRecolector(3, morty){ //Dado que Jerry actua igua
 			
 			override method puedeRecolectar(_material) = super(_material) && (self.estaBuenHumor() || self.tieneLaMochilaVacia())
 			
-			override method recolectar(_material){
+			override method recolectar(_material){//Rehacer recolectar
 				humor.recolectar(_material, self)
 			}
 			
