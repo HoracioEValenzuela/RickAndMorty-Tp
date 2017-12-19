@@ -717,6 +717,8 @@ object jerry inherits PersonajeRecolector(3, morty){ //Dado que Jerry actua igua
 			
 			override method recolectar(_material){//Rehacer recolectar
 				humor.recolectar(_material, self)
+			
+			
 			}
 			
 			override  method darObjetos(_personaje){
