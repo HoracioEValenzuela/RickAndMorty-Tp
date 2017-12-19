@@ -1,0 +1,6 @@
+import Level.*
+
+program RickAndMortyTheGame{//Falta algo mas?
+	level.configuration()
+	game.start()
+}
