@@ -1,9 +1,10 @@
 
+
 ///////////////////////////////////////////////// Materiales /////////////////////////////////////////////////
  
 class Material{
 				
-		method esRadiactivo() = false //A excepcion del Fleeb, los materiales no son radioactivos.
+		method esRadiactivo() = false //A excepcion del Fleeb, los materiales no son radiactivos.
 		
 		method electricidadGenerada() = 0 //Esto esta bien? 
 			
@@ -24,6 +25,8 @@ class Material{
 		method nivelDeConductividad() //Abstracto		
 		
 		method estaVivo() = false
+
+		method modificarHumor(_jerry){} //Decido que por defecto ningun material afecte a ningun Jerry, para modificar solo los que si lo hacen. 
 }
 
 class Lata inherits Material{
@@ -33,8 +36,7 @@ class Lata inherits Material{
 			cantMetal = unaCantidad	
 		}
 			
-			override method cantMetal() = cantMetal
-			
+			override method cantMetal() = cantMetal			
 													//Amperes
 			override method nivelDeConductividad() = 0.1 * cantMetal 
 }
@@ -54,7 +56,23 @@ class Cable inherits Material{
 			override method nivelDeConductividad() = seccionTransversal * 3
 }
 
-class Fleeb inherits Material{
+class MaterialPosiblementeRadiactivo inherits Material{
+	
+	override method modificarHumor(_jerry){
+		if(self.esRadiactivo()){
+			_jerry.sobreexictarse()
+		}
+	}	 
+}
+
+class MaterialVivo inherits Material{
+	
+	override method modificarHumor(_jerry){
+		_jerry.ponerseDeBuenHumor()
+	}
+}
+
+class Fleeb inherits MaterialPosiblementeRadiactivo{
 	var edad //En principio, hasta los 15, el Fleeb no es radiactivo
 	const materialesConsumidos
 				
@@ -75,7 +93,6 @@ class Fleeb inherits Material{
 				method consumirMateriales(unosMateriales){ //No pedido, se agrega por comodidad a la hora de realizar el test.
 					materialesConsumidos.addAll(unosMateriales)
 				}
-				
 				
 					//Retorna el material consumido que mas electricidad produce.
 				method elMaterialConsumidoQueMasElectricidadProduce() = materialesConsumidos.max { material => material.electricidadGenerada() } 
@@ -100,7 +117,7 @@ class Fleeb inherits Material{
 				
 				override method cuantaEnergiaSeNecesitaParaRecolectarlo() = 2 * super() 
 				
-					//Dado un "alguien", si el Fleeb NO es radioactivo, aumenta la energia del individuo en 10 unidades. Caso contrario, actua como el resto de los materiales. 
+					//Dado un "alguien", si el Fleeb NO es radiactvo, aumenta la energia del individuo en 10 unidades. Caso contrario, actua como el resto de los materiales. 
 				override method provocarEfecto(alguien){
 					if(! self.esRadiactivo()){
 						alguien.incrementarEnergia(10)
@@ -109,6 +126,15 @@ class Fleeb inherits Material{
 				}
 				
 				override method estaVivo() = true
+		
+				override method modificarHumor(_jerry){		
+					if(self.esRadiactivo()){
+						super(_jerry)
+					}
+					else{
+						_jerry.ponerseBuenHumor()
+					}
+				}
 }			
 
 class MateriaOscura inherits Material{
@@ -132,9 +158,9 @@ class MateriaOscura inherits Material{
 }
 
 
-
 ////////////////////////////////////////////////Parasitos Alienigenas//////////////////////////////////////////////////////////////
-class ParasitoAlienigena inherits Material{
+
+class ParasitoAlienigena inherits MaterialVivo{
 	
 	const acciones = #{}
 	
@@ -161,21 +187,24 @@ class AccionDePersonalidad{
 	
 }
 
-class AccionEnMochila inherits AccionDePersonalidad{
+class AccionesEnMochila inherits AccionDePersonalidad{
 	
 	override method provocarAlteracion(alguien){
+		alguien.sacar(self)
 		self.accionEnLaMochila(alguien)
+		alguien.agregarEsteObjeto(self)
 	}
+	
 	method accionEnLaMochila(alguien)
 }
 
-object entregarObjetos inherits AccionEnMochila{
+object entregarObjetos inherits AccionesEnMochila{
 	override method accionEnLaMochila(alguien){
 		alguien.darObjetos(alguien.companiero())
 	}
 }
 
-object tirarObejetoAlAzar inherits AccionEnMochila{
+object tirarObejetoAlAzar inherits AccionesEnMochila{
 	 
 	 override method accionEnLaMochila(alguien){
 	 	alguien.sacarCualquiera()
@@ -183,46 +212,42 @@ object tirarObejetoAlAzar inherits AccionEnMochila{
 }
 
 class AccionDeEnergia inherits AccionDePersonalidad{
-
+	
 	const porcentaje 
-	const cuentaDePorcentaje = {alguien=> alguien.energia() * porcentaje / 100}
 		constructor (_porcentaje){
 			porcentaje = _porcentaje
-			
-			}
-
-
+	}
 }
+
 class IncrementarEnergia inherits AccionDeEnergia{
 	
-  	  override method provocarAlteracion(alguien){
-  		
-			alguien.incrementarEnergia( cuentaDePorcentaje.apply(alguien) )
+  	override method provocarAlteracion(alguien){
+  		alguien.incrementarEnergia( alguien.energia() * porcentaje / 100 )
 	}
 }
 
 class DisminuirEnergia inherits AccionDeEnergia{
 	
 	 override method provocarAlteracion(alguien){
-		alguien.disminuirEnergia( cuentaDePorcentaje.apply(alguien) )
+		alguien.disminuirEnergia( alguien.energia() * porcentaje / 100 )
 	}
 }
 
 class AccionDeRecolectar inherits AccionDePersonalidad {
 	const objeto 
+		
 		constructor (_unObjeto){
 			objeto = _unObjeto
 		}
 			override method provocarAlteracion(alguien){
 				alguien.recolectar(objeto)//El comportamiento de que si puede o no recolectar esta en personajeRecolector.
 			}
-	
-	
 }
+
 
 ///////////////////////////////////////////////// MATERIALES COMPLEJOS /////////////////////////////////////////////////
 
-class MaterialCompuesto inherits Material{
+class MaterialCompuesto inherits MaterialPosiblementeRadiactivo{
 	var componentes
 		
 		constructor(unosComponentes){
@@ -285,21 +310,11 @@ class Experimento{
 		method materialesNecesarios() = materialesNecesarios
 	
 			//Dada una mochila* y una condicion, agrega a la coleccion de materiales necesarios un objeto de la mochila que cumpla dicha condicion.
-		method materialesNecesarios(unaMochila, unaCondicion){ 
-			materialesNecesarios.add(unaMochila.find(unaCondicion))
+		method materialesNecesarios(unaMochila, condicion1, condicion2){ 
+			materialesNecesarios.add(unaMochila.find(condicion1))
+			materialesNecesarios.add(unaMochila.find(condicion2))
 		}		
-		
-		 /* 
-		  * Ver si se puede hacer la modificacion de:  
-		  * 
-		  * 	materialesNecesarios(unaMochila, condicion1, condicion2){
-		  * 		materialesNecesarios.add(unaMochila.find(condicion1))
-		  * 		materialesNecesarios.add(unaMochila.find(condicion2)) 
-		  * 	}
-		  * 
-		  * Asi solo lo modificamos en construirCircuito.
-		  */ 
-		
+			
 		method hayMaterialesQueCumplan(unaMochila, unaCondicion) = unaMochila.any(unaCondicion)
 
 		method tieneMaterialesNecesarios(unaMochila)//Abstracto
@@ -319,11 +334,10 @@ object construirBateria inherits Experimento{
 		method hayMaterialesConMuchoMetal(unaMochila) = self.hayMaterialesQueCumplan(unaMochila, condicionDeMetal)
 					
 		override method agarrarLoQueNecesita(personaje){
-			self.materialesNecesarios(personaje.mochila(), condicionDeRadiactivo)
-			self.materialesNecesarios(personaje.mochila(), condicionDeMetal)
+			self.materialesNecesarios(personaje.mochila(), condicionDeRadiactivo, condicionDeMetal)
 		}
 		
-			//Dada una mochila*, retorna "True" si en la misma hay materiales que sean radioactivos y hay materiales que tengan mas de 200 grs. de metal.
+			//Dada una mochila*, retorna "True" si en la misma hay materiales que sean radiactivos y hay materiales que tengan mas de 200 grs. de metal.
 		override method tieneMaterialesNecesarios(unaMochila) = self.hayMaterialesRadiactivos(unaMochila) and  self.hayMaterialesConMuchoMetal(unaMochila)
 		
 			//Retorna una bateria cuyos componentes son los materiales necesarios del experimento.
@@ -377,8 +391,7 @@ object shockElectrico inherits Experimento{
 			//No produce ningun material como el resto de los experimentos.
 		
 		override method agarrarLoQueNecesita(personaje){
-			self.materialesNecesarios(personaje.mochila(), condicionDeGenerarElectricidad)
-			self.materialesNecesarios(personaje.mochila(), condicionDeConducirElectricidad)
+			self.materialesNecesarios(personaje.mochila(), condicionDeGenerarElectricidad, condicionDeConducirElectricidad)
 		} 
 }
 
@@ -428,6 +441,10 @@ class Mochila{
 				limite = unLimite
 			}
 			
+			method duplicarCapacidad(){
+				self.cambiarCapacidad(self.limite() * 2)
+			}
+			
 			method limite() = limite
 		
 			method tieneLugar() = self.espacioDisponible() > 0
@@ -444,7 +461,6 @@ class Mochila{
 			 *  Se realizan consultas sobre si puede o no agregar objetos a su contenido por si en algun momento se 
 			 *	manipula  a la mochila con limite desde algun lugar que no sea desde el personaje.
 			 */
-			 
 			override method agregarEstos(materiales){
 				if(!self.tieneEspacioParaRecibir(materiales)){
 					self.errorDeEspacio()
@@ -480,6 +496,9 @@ class Personaje{//Clase creada por comodidad para juntar el comportamiento en co
 			companiero = unCompaniero
 			
 		}
+		
+			method cambiarHumorCuandoDaObjetos(_jerry){//El resto de los personajes no modifican el humor de ningun otro personaje. Solo Rick.
+			}
 			
 				//Retorna el companiero del personaje. En principio, este sera Morty para Rick, pero puede cambiar en el futuro.
 			method companiero() = companiero
@@ -501,11 +520,11 @@ class Personaje{//Clase creada por comodidad para juntar el comportamiento en co
 		
 			method mochila() = mochila.objetos()//Mejor dicho la coleccion de objetos que la mochila "guarda".
 		
-			method darObjetos(unCompaniero){
-				if(! unCompaniero.puedeRecibir(self.mochila())){
-					self.error("La mochila no tiene mas espacio suficiente")
+			method darObjetos(_companiero){
+				if(! _companiero.puedeRecibir(self.mochila())){
+					self.error("La mochila de " + _companiero.nombre() + " no tiene mas espacio suficiente")
 				}
-				unCompaniero.recibirObjetos(self.mochila()) //El companiero de Morty debe entender este mensaje*
+				_companiero.recibirObjetos(self.mochila()) //El companiero de Morty debe entender este mensaje*
 				self.descartarObjetos()
 			}
 			
@@ -515,9 +534,9 @@ class Personaje{//Clase creada por comodidad para juntar el comportamiento en co
 			method sacar(unMaterial){
 				mochila.sacar(unMaterial)
 			}
-					//?
+					//? Y esto para que esta?
 			method sacarCualquiera(){
-				mochila.remove({  })
+				mochila.remove(mochila.objetos().anyOne())
 			}
 			
 				//Vacia totalmente la mochila del personaje.
@@ -566,10 +585,10 @@ class PersonajeRecolector inherits Personaje{
 			if(!self.puedeRecolectar(unMaterial)){
 				self.errorDeRecoleccion()
 			}
-				//Dudas sobre esta parte. De quien es la responsabilidad?
-			unMaterial.provocarEfecto(self) //No estoy seguro de esta parte
 			self.meterEnLaMochila(unMaterial)
+			unMaterial.provocarEfecto(self) 
 		}
+		
 		method agregarEsteObjeto(objeto){
 			mochila.agregar(objeto)
 		}
@@ -647,39 +666,44 @@ object summer inherits PersonajeRecolector(2, rick){
 	override method cuantaEnergiaNecesitaParaLevantar(unMaterial) = super(unMaterial) * 0.8 //Summer requiere un 20% menos de energia que Morty. Es decir, un 80% del mismo.
 
 	override method darObjetos(alguien){
-		super(alguien)
 		alguien.disminuirEnergia(10)
+		super(alguien)
 	}
 }			
 
 object jerry inherits PersonajeRecolector(3, morty){ //Dado que Jerry actua igual que Morty, ambos estan instanciados a partir de la misma clase. Quizas sea mas prolijo hacer una clase de  Morty, en vez de un object, para que Jerry pueda heredar de el. 
-	var estaDeMalHumorPorQueloVioARick = false
-								//Agrego estemetodo xq hay dosformas que los pjs se "conozcan". Que sean companieros o que se den objetos
-								//Uno quisiera que cualquier pj puediera dar y recibir  objetos de cualquier personaje.
-								// 
-			method estaBuenHumor() = not estaDeMalHumorPorQueloVioARick and not self.suCompanieroEsRick()
+	var humor = new BuenHumor() //En prncipio, decimos que Jerry comienza de buen humor.
+			
+			method humor() = humor 
+				
+			method estaBuenHumor() = humor.esBueno()
+			
+			method estaSobreexcitado() = humor.esSobreexitado()
 			
 			method estaMalHumor() = not self.estaBuenHumor()
 			
-			method suCompanieroEsRick() = companiero.nombre() == "Rick"
-		
-			method dobleDeCapacidad() = mochila.limite() * 2
-			
 			method tieneLaMochilaVacia() = mochila.estaVacia()
 			
+			method cambiarHumor(_humor){
+				humor = _humor
+			}
+			
 			method ponerseDeBuenHumor(){
-				estaDeMalHumorPorQueloVioARick = false
+				self.cambiarHumor(new BuenHumor())
+			}
+			
+			method duplicarCapacidadMochila(){
+				mochila.duplicarCapacidad()
 			}
 		
 			method ponerseDeMalHumor(){
-				estaDeMalHumorPorQueloVioARick = true
+				self.cambiarHumor(new MalHumor())
 			}
 		
-			method sobreexcitarse(){
-				self.quizasPierdeTodo()
-				mochila.cambiarCapacidad(self.dobleDeCapacidad())//Nada indica que Jerry vuelve a perder la capacidad de la mochila, salvo que se ponga de mal humor.	
+			method sobreexictarse(){
+				self.cambiarHumor(new SobreExcitado())
 			}
-		
+			
 			method quizasPierdeTodo(){
 				if(self.esUnaPosibilidad()){//Es hasta el 4 inclusive?
 					self.descartarObjetos()				
@@ -688,53 +712,73 @@ object jerry inherits PersonajeRecolector(3, morty){ //Dado que Jerry actua igua
 				//Minimizando el calculo de probabilidades, hay 1 de 4 posibilidades de que Jerry pierda el contenido de la mochila pero...
 			method esUnaPosibilidad() = 1.randomUpTo(4) == 2 //Elegi el 2 como podria haber sido cualquier numero dentro del rango. Tecnicamente, hay 25% que el randomUpTo devuelva cualquiera de ellos... 
 															//En el caso de ...(4), deberia decir 4 o 5? Al probarlo desde el repl 10/10 veces me daba "x" numero que oscilaba entre 0 y 3. 		
-			method cambioDeHumorAlRecolectar(unMaterial){
-				if(unMaterial.estaVivo() and !self.estaBuenHumor()){//Entiendo que si el companiero de Jerry es Rick, este esta de mal humor. El levantar un material vivo, modifica el hecho de que este pero si su companiero es Rick, el metodo estaDeBuenHumor() va a dar falso, independientemente de que haya recogido un material vivo. 
-					self.ponerseDeBuenHumor()
-				}
-			}
-			
-			method excitarseSiEsRadiactivo(unMaterial){
-				if(unMaterial.esRadiactivo()){
-					self.sobreexcitarse()	
-				}	
-			}
-			
-			method determinarSiPuedeLevantar(){
-				if(!self.tieneLaMochilaVacia()){					
-					self.errorDeRecoleccion()
-				}
-			}
-
-			method aQuienLeDaObjetosEsRick(alguien) = alguien.nombre() == "rick"			
-			
 			override method nombre() = "Jerry"
 			
-			override method puedeRecolectar(unMaterial) = super(unMaterial) && (self.estaBuenHumor() || self.tieneLaMochilaVacia())
+			override method puedeRecolectar(_material) = super(_material) && (self.estaBuenHumor() || self.tieneLaMochilaVacia())
 			
-			override method recolectar(unMaterial){	
-				if(self.estaMalHumor()){//Esa parte del enunciado se me hace confusa: Jerry se niega a levantar el material a recolectar? 
-					self.determinarSiPuedeLevantar()//Entiendo por el enunciado de que si Jerry esta de mal humor solo puede levantar un material. Es decir, si tiene la mochila vacia, puede levantar ese material que se le pide que recolecte.
-													// sino, rompe.
-				}
-				super(unMaterial)
-				self.cambioDeHumorAlRecolectar(unMaterial)//Esto iria aca o al comienzo? Me cuesta ver la posicion de la instruccion en el algoritmo.
-				self.excitarseSiEsRadiactivo(unMaterial)	
+			override method recolectar(_material){
+				humor.recolectar(_material, self)
 			}
 			
-			override  method darObjetos(alguien){
-				if(self.aQuienLeDaObjetosEsRick(alguien)){//Dada la implementacion, hay 2 formas de que los personajes se vean: Ya sea que sean companieros o bien, que a un personaje se le envie el mensaje de darObjetos(otroPj), puediendo ser "otroPj" el companiero del primero o no. 
-					self.ponerseDeMalHumor()
+			override  method darObjetos(_personaje){
+				_personaje.cambiarHumorCuandoDaObjetos(self)
+				super(_personaje)
+			}		
+			
+			method levantarSoloUno(_material){
+				if(self.puedeRecolectar(_material)){
+					self.meterEnLaMochila(_material)
 				}
-				super(alguien)
+				//Sino, no hace nada. --Else innecesario
 			}
 }
+
+class Humor{
+		
+	method recolectar(_material, _persona)
+	
+	method esBueno() = false
+	
+	method esSobreexitado() = false
+}
+
+class BuenHumor inherits Humor{
+	
+	override method recolectar(_material, _persona){
+		_persona.meterEnLaMochila(_material)
+	}
+	
+	override method esBueno() = true
+}
+
+class MalHumor inherits BuenHumor{
+	
+	override method recolectar(_material, _persona){
+		_persona.levantarSoloUno(_material)
+	}
+}
+
+class SobreExcitado inherits BuenHumor{
+	
+	override method recolectar(_material, _persona){
+		_persona.quizasPierdeTodo()
+		_persona.duplicarCapacidadMochila()
+		super(_material, _persona)
+	}
+		
+	override method esSobreexitado() = true
+}
+
 
 object rick inherits Personaje(new Mochila(), morty){
 	//Inicialmente decimos que el companiero de Rick es Morty, pero esto puede variar en el futuro.
 	//Lo mismo decimos que los experimentos que saber hacer rick es el construoir la bateria, el circuito y el shock electrico, pero esta tmb puede cambiar.		
 	const experimentos = #{construirBateria, construirCircuito, shockElectrico}
-	
+		
+			override method cambiarHumorCuandoDaObjetos(_jerry){
+				_jerry.ponerDeMalHumor()	
+			}
+			
 			method experimentosQuePuedeRealizar() = experimentos.filter { experimento => experimento.tieneMaterialesNecesarios(self.mochila()) }
 			
 			method sePuedeRealizar(unExperimento) = unExperimento.tieneMaterialesNecesarios(self.mochila())
@@ -754,7 +798,7 @@ object rick inherits Personaje(new Mochila(), morty){
 			
 			method accionesEnLaMochilaAlCrear(unExperimento){
 				mochila.sacarEstos(unExperimento.materialesNecesarios())
-				mochila.agregar(unExperimento.loQueProduce())//Preguntar si se puede cambiar esto, sino se agregaria un shockElectrico (experimento) a la lista de materiales y como que no es la idea. 
+				mochila.agregar(unExperimento.loQueProduce())
 			}
 
 			override method nombre() = "Rick"
@@ -790,7 +834,7 @@ class MenorMetal inherits Estrategia {
 			return "No hay material en la mochila que cumpla la condicion"
 			}
 	}
-
+	
 			method menorCantidadDeMetal() = rick.mochila().min({material => material.cantMetal()}) 
 	
 }
@@ -813,17 +857,17 @@ class Ecologico inherits Estrategia{
 	
 	override method seleccion(condicion){
 		if(rick.mochila().any({condicion})){
-			return rick.mochila().filter({condicion}).find({self.materialVivoORadioactivo()})
+			return rick.mochila().filter({condicion}).find({self.materialVivoORadiactivo()})
 			} else {
 			return "No hay material en la mochila que cumpla la condicion"
 			}
 	}
 	
-	method materialVivoORadioactivo(){
+	method materialVivoORadiactivo(){
 		if(rick.mochila().any({material => material.estaVivo()})){
 			return	{material => material.estaVivo()}
 		} else  {
-			return {material => material.esRadioactivo()}
+			return {material => material.esRadiactivo()}
 		}
 	}
 	
